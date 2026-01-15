@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "prettier": "^3.8.0",
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "lite-server": "^2.6.1",
+    "typescript": "^5.9.3"
+  }
+}
