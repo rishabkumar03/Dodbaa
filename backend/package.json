@@ -29,6 +29,7 @@
     "cloudinary": "^2.8.0",
     "concat-map": "^0.0.1",
     "debug": "^4.4.3",
+    "express": "^5.2.1",
     "fill-range": "^7.1.1",
     "glob-parent": "^5.1.2",
     "has-flag": "^3.0.0",
