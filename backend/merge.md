@@ -9,3 +9,7 @@ git merge origin conflicted_branch_name
 git add .
 git commit -m "merged changes from conflicted_branch_name"
 git push origin branch_name 
+
+Todos:
+- learn about zod in node.js
+- take a look into typescript generics
