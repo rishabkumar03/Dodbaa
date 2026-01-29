@@ -14,14 +14,17 @@ export interface UserDocument extends Document {
 const UserDbSchema: Schema<UserDocument> = new Schema({
     fullname: {
         type: String,
+        trim: true,
         required: [true, "Fullname cannot be empty"]
     },
     email: {
         type: String,
+        trim: true,
         required: [true, "Email is required"]
     },
     password: {
         type: String,
+        trim: true,
         required: [true, "Password is required"]
     },
     phone: {
@@ -35,6 +38,7 @@ const UserDbSchema: Schema<UserDocument> = new Schema({
     },
     address: {
         type: Schema.Types.ObjectId,
+        trim: true,
         ref: "AddressModel",
         required: true
     },

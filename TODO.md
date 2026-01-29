@@ -8,4 +8,6 @@ address schema {
     alternateAddress: String | optional
     pinCode: String,
     landMark: String,
-}```
+}
+```
+implement category and sub category in order model
