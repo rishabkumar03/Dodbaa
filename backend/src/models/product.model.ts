@@ -1,0 +1,59 @@
+import mongoose, { Schema, Document } from "mongoose";
+
+export interface ProductDocument extends Document {
+    name: string;
+    description: string;
+    images: string[];
+    price: number;
+    avgRating: number;
+    isAvailable: boolean; 
+
+    category: mongoose.Types.ObjectId;
+    subCategory: mongoose.Types.ObjectId;
+    subSubCategory: mongoose.Types.ObjectId;
+}
+
+const productDbSchema: Schema<ProductDocument> = new Schema({
+    name: {
+        type: String,
+        trim: true,
+        required: [true, "Name cannot be empty"]
+    },
+    description: {
+        type: String,
+        required: [true, "Description is required"]
+    },
+    images: {
+        type: [String],
+        required: [true, "Image is required"]
+    }, 
+    price: {
+        type: Number,
+        required: [true, "Price is required"]
+    },
+    avgRating: {
+        type: Number,
+        default: 0
+    },
+    isAvailable: {
+        type: Boolean,
+        default: true
+    },
+    category: {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+        required: [true, "Category is required"]
+    },
+    subCategory: {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+        required: [true, "subCategory is required"]
+    },
+    subSubCategory: {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+        default: null
+    }
+}, { timestamps: true })
+
+export const productModel = mongoose.model<ProductDocument>("ProductModel", productDbSchema)
