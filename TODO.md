@@ -1,4 +1,4 @@
-Learn Reddis, SEO, Indexing
+Learn Redis, SEO, Indexing
 install zod
 implement DIY features in webpage
 sell product like brush, canvas and other materials
