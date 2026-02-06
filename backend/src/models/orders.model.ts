@@ -1,20 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-type category =
-    | "ceramics"
-    | "keychains"
-    | "paintings"
-    | "sculptures"
-    | "others"
-
-type SubCategoryMap = {
-  ceramics: "pottery" | "vases" | "plates";
-  keychains: "metal" | "wooden" | "custom";
-  paintings: "oil" | "watercolor" | "acrylic";
-  sculptures: "stone" | "metal" | "clay";
-  others: "handmade" | "custom";
-};
-
 interface OrderDocument extends Document {
     userId: mongoose.Types.ObjectId
     totalAmount: number

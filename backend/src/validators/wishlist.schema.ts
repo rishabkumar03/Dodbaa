@@ -2,11 +2,11 @@
 
 import z from "zod"
 
-const wishlistZodSchema = z.object({
+const WishlistZodSchema = z.object({
     userId: z
         .string(),
     productId: z
         .string()
 })
 
-export type WishlistInput = z.infer<typeof wishlistZodSchema>;
+export type WishlistInput = z.infer<typeof WishlistZodSchema>;

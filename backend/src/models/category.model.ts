@@ -1,13 +1,13 @@
 import mongoose, {Schema, Document} from "mongoose";
 
-export interface categoryDocument extends Document {
+export interface CategoryDocument extends Document {
     name: string;
     slug: string;
     level: 1 | 2 | 3;
-    parent?: mongoose.Types.ObjectId;
+    parent?: mongoose.Types.ObjectId | null;
 }
 
-const categoryDbSchema: Schema<categoryDocument> = new Schema({
+const CategoryDbSchema: Schema<CategoryDocument> = new Schema({
     name: {
         type: String,
         required: [true, "Name cannot be empty"],
@@ -25,9 +25,9 @@ const categoryDbSchema: Schema<categoryDocument> = new Schema({
     },
     parent: {
         type: Schema.Types.ObjectId,
-        ref: "Category",
+        ref: "CategoryModel",
         default: null
     }
 }, {timestamps: true})
 
-export const categoryModel = mongoose.model<categoryDocument>("CategoryModel", categoryDbSchema)
+export const CategoryModel = mongoose.model<CategoryDocument>("CategoryModel", CategoryDbSchema)

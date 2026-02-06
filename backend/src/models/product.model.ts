@@ -13,7 +13,7 @@ export interface ProductDocument extends Document {
     subSubCategory: mongoose.Types.ObjectId;
 }
 
-const productDbSchema: Schema<ProductDocument> = new Schema({
+const ProductDbSchema: Schema<ProductDocument> = new Schema({
     name: {
         type: String,
         trim: true,
@@ -41,19 +41,19 @@ const productDbSchema: Schema<ProductDocument> = new Schema({
     },
     category: {
         type: Schema.Types.ObjectId,
-        ref: "Category",
+        ref: "CategoryModel",
         required: [true, "Category is required"]
     },
     subCategory: {
         type: Schema.Types.ObjectId,
-        ref: "Category",
+        ref: "CategoryModel",
         required: [true, "subCategory is required"]
     },
     subSubCategory: {
         type: Schema.Types.ObjectId,
-        ref: "Category",
+        ref: "CategoryModel",
         default: null
     }
 }, { timestamps: true })
 
-export const productModel = mongoose.model<ProductDocument>("ProductModel", productDbSchema)
+export const ProductModel = mongoose.model<ProductDocument>("ProductModel", ProductDbSchema)

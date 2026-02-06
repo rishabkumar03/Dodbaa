@@ -2,7 +2,7 @@
 
 import z from "zod"
 
-const productZodSchema = z.object({
+const ProductZodSchema = z.object({
     name: z
         .string()
         .trim()
@@ -34,4 +34,4 @@ const productZodSchema = z.object({
         .optional()
 })
 
-export type ProductInput = z.infer<typeof productZodSchema>;
+export type ProductInput = z.infer<typeof ProductZodSchema>;

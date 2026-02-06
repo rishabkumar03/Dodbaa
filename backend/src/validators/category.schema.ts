@@ -2,7 +2,7 @@
 
 import z from "zod"
 
-const categoryZodSchema = z.object({
+const CategoryZodSchema = z.object({
     name: z
         .string()
         .trim()
@@ -20,4 +20,4 @@ const categoryZodSchema = z.object({
         .optional()
 })
 
-export type CategoryInput = z.infer<typeof categoryZodSchema>;
+export type CategoryInput = z.infer<typeof CategoryZodSchema>;
