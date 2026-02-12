@@ -29,6 +29,7 @@
     "chokidar": "^3.6.0",
     "cloudinary": "^2.8.0",
     "concat-map": "^0.0.1",
+    "cookie-parser": "^1.4.7",
     "debug": "^4.4.3",
     "express": "^5.2.1",
     "fill-range": "^7.1.1",
