@@ -12,21 +12,26 @@ export interface TransactionDocument extends Document {
 const TransactionDbSchema: Schema<TransactionDocument> = new Schema({
     paymentMethod: {
         type: String,
-        trim: true
+        enum: ["COD", "Razorpay", "Stripe"],
+        required: true
     }, 
     paymentStatus: {
         type: String,
+        enum: ["Pending", "Success", "Failed"],
+        required: true
     },
     paymentGatewayId: {
         type: String,
     },
     paymentOrderId: {
         type: Schema.Types.ObjectId,
-        ref: "OrderModel"
+        ref: "OrderModel",
+        required: true
     },
     paymentUserId: {
         type: Schema.Types.ObjectId,
-        ref: "UserModel"
+        ref: "UserModel",
+        required: true
     }
 }, { timestamps: true })
 
