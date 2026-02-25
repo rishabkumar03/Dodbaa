@@ -18,10 +18,6 @@ const UserZodSchema = z.object({
         .regex(/^(?:\+91|91)?[6-9]\d{9}$/, { message: "Please enter a valid Phone Number" }),
     role: z
         .enum(["user", "artist", "admin"]),
-    address: z
-        .string()
-        .trim()
-        .min(1, { message: "Address is required" }),
     resetPasswordOTP: z
         .string()
         .optional(),
