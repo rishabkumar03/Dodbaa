@@ -12,7 +12,6 @@ const UserZodSchema = z.object({
         .email({ message: "Please enter a valid email" }),
     password: z
         .string()
-        .trim()
         .min(6, { message: "Password must be at least 6 characters" }),
     phone: z
         .string()
@@ -27,4 +26,5 @@ const UserZodSchema = z.object({
         .optional()
 })
 
+export { UserZodSchema } 
 export type UserInput = z.infer<typeof UserZodSchema>;
