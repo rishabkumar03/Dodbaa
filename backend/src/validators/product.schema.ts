@@ -16,11 +16,12 @@ const ProductZodSchema = z.object({
         .min(2, { message: "Product images shold contains atleast 2 content." }),
     price: z
         .number()
-        .positive({message: "Price must be greater than 0"})
-        .min(99),
+        .positive({message: "Price must be greater than 99"})
+        .gt(99) // minimum ₹99
+        .min(1),
     avgRating: z
         .number()
-        .min(1)
+        .min(0)
         .max(5)
         .optional(),
     isAvailable: z

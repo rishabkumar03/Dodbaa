@@ -6,11 +6,11 @@ const CategoryZodSchema = z.object({
     name: z
         .string()
         .trim()
-        .min(3, {message: "Category name should have atleast 3 characters"}),
+        .min(3, { message: "Category name should have atleast 3 characters" }),
     slug: z
-        .string()
-        .trim()
-        .min(3, {message: "Slug name should have atleast 3 characters"}),
+        .string().
+        trim().
+        regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format"),
     level: z
         .number()
         .min(1)

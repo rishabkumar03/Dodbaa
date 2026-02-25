@@ -5,7 +5,7 @@ import z from "zod"
 const FeedbackZodSchema = z.object({
     rating: z
         .number()
-        .min(0)
+        .min(1)
         .max(5),
     comment: z
         .string()
