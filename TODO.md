@@ -11,3 +11,4 @@ address schema {
 }
 ```
 implement category and sub category in order model
+implement skeleton loading in frontend
