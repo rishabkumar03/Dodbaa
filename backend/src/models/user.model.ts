@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import jwt from "jsonwebtoken"
 import type { SignOptions } from "jsonwebtoken"
+import type { StringValue } from "ms";
 import bcrypt from "bcrypt"
 
 export interface UserDocument extends Document {
@@ -64,7 +65,7 @@ UserDbSchema.methods.generateAccessToken = function(){
         throw new Error("ACCESS_TOKEN_SECRET is not defined");
     }
     const accessTokenOptions: SignOptions = {
-        expiresIn: (process.env.ACCESS_TOKEN_EXPIRY as string) || "3h"
+        expiresIn: (process.env.ACCESS_TOKEN_EXPIRY as StringValue) || "3h"
     };
     return jwt.sign(
         {
@@ -83,7 +84,7 @@ UserDbSchema.methods.generateRefreshToken = function(){
         throw new Error("REFRESH_TOKEN_SECRET is not defined");
     }
     const referenceTokenOptions: SignOptions = {
-        expiresIn: (process.env.REFRESH_TOKEN_EXPIRY as string) || "7d"
+        expiresIn: (process.env.REFRESH_TOKEN_EXPIRY as StringValue) || "7d"
     }
     return jwt.sign(
         {
