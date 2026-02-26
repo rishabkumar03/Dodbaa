@@ -1,4 +1,4 @@
-import mongoose, {Schema, Document} from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface WishlistDocument extends Document {
     userId: mongoose.Types.ObjectId,
@@ -16,6 +16,9 @@ const WishlistDbSchema: Schema<WishlistDocument> = new Schema({
         ref: "ProductModel",
         required: true
     }
-}, {timestamps: true})
+}, { timestamps: true })
 
-export const WishlistModel = mongoose.model<WishlistDocument>("WishlistModel", WishlistDbSchema);
+export const WishlistModel = mongoose.model<WishlistDocument>("WishlistModel", WishlistDbSchema.index(
+    { userId: 1, productId: 1 },  // index these two fields together
+    { unique: true }               // the combination must be unique
+));

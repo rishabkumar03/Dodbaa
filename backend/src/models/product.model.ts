@@ -6,7 +6,7 @@ export interface ProductDocument extends Document {
     images: string[];
     price: number;
     avgRating: number;
-    isAvailable: boolean; 
+    isAvailable: boolean;
 
     category: mongoose.Types.ObjectId;
     subCategory: mongoose.Types.ObjectId;
@@ -25,15 +25,21 @@ const ProductDbSchema: Schema<ProductDocument> = new Schema({
     },
     images: {
         type: [String],
-        required: [true, "Image is required"]
-    }, 
+        validate: {
+            validator: (v: string[]) => v.length >= 2,
+            message: "Product must have at least 2 images"
+        },
+        required: true
+    },
     price: {
         type: Number,
         required: [true, "Price is required"]
     },
     avgRating: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0,
+        max: 5
     },
     isAvailable: {
         type: Boolean,

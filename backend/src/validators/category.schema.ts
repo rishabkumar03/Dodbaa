@@ -16,10 +16,12 @@ const CategoryZodSchema = z.object({
         .string().
         trim().
         regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format"),
+
     level: z
         .number()
         .min(1)
         .max(3),
+        
     parent: z
         .string()
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid parent ID")

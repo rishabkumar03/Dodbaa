@@ -7,6 +7,7 @@ const FeedbackZodSchema = z.object({
         .number()
         .min(1)
         .max(5),
+
     comment: z
         .string()
         .trim()
@@ -16,6 +17,7 @@ const FeedbackZodSchema = z.object({
     feedbackUserId: z
         .string()
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid User ID"),
+        
     feedbackProductId: z
         .string()
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID")

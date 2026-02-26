@@ -7,20 +7,26 @@ const UserZodSchema = z.object({
         .string()
         .trim()
         .min(2, { message: "Fullname should have atleast 2 characters" }),
+
     email: z
         .string()
         .email({ message: "Please enter a valid email" }),
+
     password: z
         .string()
         .min(6, { message: "Password must be at least 6 characters" }),
+
     phone: z
         .string()
         .regex(/^(?:\+91|91)?[6-9]\d{9}$/, { message: "Please enter a valid Phone Number" }),
+
     role: z
         .enum(["user", "artist", "admin"]),
+
     resetPasswordOTP: z
         .string()
         .optional(),
+        
     resetPasswordOTPExpiry: z
         .date()
         .optional()
