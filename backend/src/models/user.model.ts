@@ -10,6 +10,7 @@ export interface UserDocument extends Document {
     password: string;
     phone: string;
     role: "user" | "artist" | "admin";
+    refreshToken: string;
     resetPasswordOTP?: string;
     resetPasswordOTPExpiry?: Date;
 
@@ -22,20 +23,24 @@ const UserDbSchema: Schema<UserDocument> = new Schema({
     fullname: {
         type: String,
         trim: true,
+        index: true,
         required: [true, "Fullname cannot be empty"]
     },
     email: {
         type: String,
         trim: true,
+        unique: true,
+        index: true,
+        lowercase: true,
         required: [true, "Email is required"]
     },
     password: {
         type: String,
-        trim: true,
         required: [true, "Password is required"]
     },
     phone: {
         type: String,
+        unique: true,
         required: [true, "Phone Number is required"]
     },
     role: {
@@ -43,23 +48,30 @@ const UserDbSchema: Schema<UserDocument> = new Schema({
         enum: ["user", "artist", "admin"],
         default: "user"
     },
-    resetPasswordOTP: String,
+    refreshToken: {
+        type: String,
+        default: null
+    },
+    resetPasswordOTP: {
+        type: String,
+        index: true
+    },
     resetPasswordOTPExpiry: Date,
 
 }, { timestamps: true })
 
-UserDbSchema.pre<UserDocument>("save", async function (this: UserDocument, next: any){
-    if(!this.isModified("password")) return next()
+UserDbSchema.pre<UserDocument>("save", async function (this: UserDocument, next: any) {
+    if (!this.isModified("password")) return next()
 
-    this.password = await bcrypt.hash(this.password, 6)
+    this.password = await bcrypt.hash(this.password, 12)
     next()
 })
 
-UserDbSchema.methods.isPasswordCorrect = async function (password: string){
+UserDbSchema.methods.isPasswordCorrect = async function (password: string) {
     return await bcrypt.compare(password, this.password)
 }
 
-UserDbSchema.methods.generateAccessToken = function(){
+UserDbSchema.methods.generateAccessToken = function () {
     const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET as string;
     if (!accessTokenSecret) {
         throw new Error("ACCESS_TOKEN_SECRET is not defined");
@@ -71,14 +83,14 @@ UserDbSchema.methods.generateAccessToken = function(){
         {
             _id: this._id,
             fullname: this.fullname,
-            email: this.email 
+            email: this.email
         },
         accessTokenSecret,
         accessTokenOptions
     )
 }
 
-UserDbSchema.methods.generateRefreshToken = function(){
+UserDbSchema.methods.generateRefreshToken = function () {
     const refereshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
     if (!refereshTokenSecret) {
         throw new Error("REFRESH_TOKEN_SECRET is not defined");

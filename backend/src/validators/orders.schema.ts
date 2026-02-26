@@ -6,13 +6,14 @@ const OrderZodSchema = z.object({
         .trim()
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid User ID")
         .min(1, { message: "UserId is required" }),
+
     totalAmount: z
         .number()
         .min(0, { message: "Total Amount should be greater than 0" }),
+
     orderStatus: z
         .enum(["Order Placed", "Order Shipped", "Order Delivered"]),
-    category: z
-        .enum(["ceramics", "keychains", "paintings", "sculptures", "others"])
+
 })
 
 export type OrderInput = z.infer<typeof OrderZodSchema>;

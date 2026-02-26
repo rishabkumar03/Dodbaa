@@ -25,6 +25,7 @@ const OrderDbSchema: Schema<OrderDocument> = new Schema(
 
     totalAmount: {
       type: Number,
+      min: 0,
       required: true,
     },
 
