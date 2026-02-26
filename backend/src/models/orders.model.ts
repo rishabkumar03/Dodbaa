@@ -31,7 +31,7 @@ const OrderDbSchema: Schema<OrderDocument> = new Schema(
 
     orderStatus: {
       type: String,
-      enum: ["Order Placed", "Order Shipped", "Order Delivered"],
+      enum: ["Order Placed", "Order Shipped", "Order Delivered", "Order Cancelled", "Order Returned"],
       default: "Order Placed",
     },
   },
