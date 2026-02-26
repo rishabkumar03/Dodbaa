@@ -7,6 +7,11 @@ const CategoryZodSchema = z.object({
         .string()
         .trim()
         .min(3, { message: "Category name should have atleast 3 characters" }),
+    description: z
+        .string()
+        .trim(),
+    image: z
+        .string(),
     slug: z
         .string().
         trim().
@@ -17,7 +22,10 @@ const CategoryZodSchema = z.object({
         .max(3),
     parent: z
         .string()
+        .regex(/^[0-9a-fA-F]{24}$/, "Invalid parent ID")
         .optional()
+        .nullable()
 })
 
+export { CategoryZodSchema }
 export type CategoryInput = z.infer<typeof CategoryZodSchema>;

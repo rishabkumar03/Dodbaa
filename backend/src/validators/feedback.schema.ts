@@ -11,6 +11,8 @@ const FeedbackZodSchema = z.object({
         .string()
         .trim()
         .optional(),
+    isPurchaseVerified: z
+        .boolean(),
     feedbackUserId: z
         .string()
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid User ID"),
@@ -19,4 +21,5 @@ const FeedbackZodSchema = z.object({
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID")
 })
 
+export { FeedbackZodSchema }
 export type FeedbackInput = z.infer<typeof FeedbackZodSchema>;

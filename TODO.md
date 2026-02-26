@@ -13,5 +13,8 @@ address schema {
 implement category and sub category in order model
 implement skeleton loading in frontend
 
-change the name [Order] -> [Cart]
-Initially implement Razorpay and upgrade to strip pay for international payments 
+<!-- change the name [Order] -> [Cart] -->
+
+25-02-2026: Initially implement Razorpay and upgrade to strip pay for international payments 
+
+26-02-2026: We have to improve pinCode validation in address.schema.ts for global customers.

@@ -1,20 +1,54 @@
 import mongoose, { Schema, Document } from "mongoose";
-import type { AddressInput } from "../validators/address.schema.js"
 
-interface AddressDocument extends AddressInput, Document { }
+interface AddressDocument extends Document { 
+    fullAddress: string,
+    city: string,
+    state: string,
+    pinCode: string,
+    landmark?: string,
+    country: string,
+    addressType: "home" | "work" | "other",
+
+    userAddress: mongoose.Types.ObjectId
+}
 
 const AddressDbSchema: Schema<AddressDocument> = new Schema({
-    address: {
+    fullAddress: {
         type: String,
-        required: [true, "Address is required"]
+        required: [true, "FullAddress is required"]
+    },
+    city: {
+        type: String,
+        required: [true, "City is required"]
+    },
+    state: {
+        type: String,
+        required: [true, "State is required"]
     },
     pinCode: {
         type: String,
         required: [true, "PinCode is required"]
     },
-    landMark: {
+    landmark: {
         type: String,
     },
+    country: {
+        type: String,
+        required: [true, "Country is required"]
+    },
+    addressType: {
+        type: String,
+        enum: [
+            "home", 
+            "work", 
+            "other"
+        ]
+    },
+    userAddress: {
+        type: Schema.Types.ObjectId,
+        ref: "UserModel",
+        required: true
+    }
 }, { timestamps: true })
 
 export const AddressModel = mongoose.model<AddressDocument>("AddressModel", AddressDbSchema)

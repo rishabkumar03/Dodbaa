@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface FeedbackDocument extends Document {
     rating: number;
     comment: string;
+    isPurchaseVerified: boolean
 
     feedbackUserId: mongoose.Types.ObjectId;
     feedbackProductId: mongoose.Types.ObjectId;
@@ -11,13 +12,17 @@ export interface FeedbackDocument extends Document {
 const FeedbackDbSchema: Schema<FeedbackDocument> = new Schema({
     rating: {
         type: Number,
-        min: 0,
+        min: 1,
         max: 5,
         required: true
     },
     comment: {
         type: String,
         trim: true
+    },
+    isPurchaseVerified: {
+        type: Boolean,
+        default: false
     },
     feedbackUserId: {
         type: Schema.Types.ObjectId,

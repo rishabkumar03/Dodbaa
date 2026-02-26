@@ -2,6 +2,8 @@ import mongoose, {Schema, Document} from "mongoose";
 
 export interface CategoryDocument extends Document {
     name: string;
+    description: string
+    image: string
     slug: string;
     level: 1 | 2 | 3;
     parent?: mongoose.Types.ObjectId | null;
@@ -12,6 +14,13 @@ const CategoryDbSchema: Schema<CategoryDocument> = new Schema({
         type: String,
         required: [true, "Name cannot be empty"],
         trim: true
+    },
+    description: {
+        type: String,
+        trim: true
+    },
+    image: {
+        type: String
     },
     slug: {
         type: String,

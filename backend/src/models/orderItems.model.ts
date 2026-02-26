@@ -21,7 +21,7 @@ const OrderItemDbSchema: Schema<OrderItemDocument> = new Schema({
     priceAtPurchase: {
         type: Number,
         required: true,
-        min: 0
+        min: 1
     },
     quantity: {
         type: Number,

@@ -9,10 +9,11 @@ const OrderItemZodSchema = z.object({
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID"),
     priceAtPurchase: z
         .number()
-        .min(0, { message: "Price at purchase amount should be greater than 0" }),
+        .min(1, { message: "Price at purchase amount should be greater than 0" }),
     quantity: z
         .number()
         .min(1, { message: "Quantity should be greater than 0" })
 })
 
+export { OrderItemZodSchema }
 export type OrderItemInput = z.infer<typeof OrderItemZodSchema>;

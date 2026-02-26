@@ -1,9 +1,27 @@
 import z from "zod"
 
 const AddressZodSchema = z.object({
-    address: z.string().trim().min(1, { message: "Address cannot be empty" }),
-    pinCode: z.string().regex(/^[1-9][0-9]{5}$/, {message: "Invalid pincode"}),
-    landmark: z.string().optional(),
+    fullAddress: z
+        .string(),
+    city: z
+        .string(),
+    state: z
+        .string(),
+    pinCode: z
+        .string()
+        .trim(),
+    landMark: z
+        .string()
+        .optional(),
+    country: z
+        .string(),
+    addressType: z
+        .enum(["home", "work", "other"]),
+
+    userAddress: z
+        .string()
+        .regex(/^[0-9a-fA-F]{24}$/, "Invalid User ID")
 })
 
+export { AddressZodSchema }
 export type AddressInput = z.infer<typeof AddressZodSchema>
