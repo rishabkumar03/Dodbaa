@@ -44,5 +44,5 @@ const ProductZodSchema = z.object({
         .optional()
 })
 
-
+export { ProductZodSchema }
 export type ProductInput = z.infer<typeof ProductZodSchema>;

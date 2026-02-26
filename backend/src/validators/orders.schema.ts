@@ -16,4 +16,5 @@ const OrderZodSchema = z.object({
 
 })
 
+export { OrderZodSchema }
 export type OrderInput = z.infer<typeof OrderZodSchema>;

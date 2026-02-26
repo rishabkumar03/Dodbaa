@@ -10,4 +10,5 @@ const WishlistZodSchema = z.object({
         .string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID")
 })
 
+export { WishlistZodSchema }
 export type WishlistInput = z.infer<typeof WishlistZodSchema>;

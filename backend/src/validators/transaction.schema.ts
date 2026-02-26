@@ -23,4 +23,5 @@ const TransactionZodSchema = z.object({
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid User ID")
 })
 
+export { TransactionZodSchema }
 export type TransactionInput = z.infer<typeof TransactionZodSchema>;
