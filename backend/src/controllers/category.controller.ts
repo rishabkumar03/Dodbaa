@@ -13,7 +13,7 @@ import {
 
 const addCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
     if (!req.file?.path) {
-        throw new ApiError(403, "Image file is Required", [], "");
+        throw new ApiError(403, "Image file is Required");
     }
 
     // Step 1 - upload file to cloudinary first
