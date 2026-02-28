@@ -1,9 +1,9 @@
-import mongoose, {Schema, Document} from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface CategoryDocument extends Document {
     name: string;
     description: string
-    image: string
+    image: string[]
     slug: string;
     level: 1 | 2 | 3;
     parent?: mongoose.Types.ObjectId | null;
@@ -20,13 +20,13 @@ const CategoryDbSchema: Schema<CategoryDocument> = new Schema({
         trim: true
     },
     image: {
-        type: String
+        type: [String]
     },
     slug: {
         type: String,
         required: [true, "Slug is required"],
         unique: true
-    }, 
+    },
     level: {
         type: Number,
         enum: [1, 2, 3],
@@ -37,6 +37,6 @@ const CategoryDbSchema: Schema<CategoryDocument> = new Schema({
         ref: "CategoryModel",
         default: null
     }
-}, {timestamps: true})
+}, { timestamps: true })
 
 export const CategoryModel = mongoose.model<CategoryDocument>("CategoryModel", CategoryDbSchema)
