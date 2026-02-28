@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface CategoryDocument extends Document {
     name: string;
     description: string
-    image: string[]
+    images: string[]
     slug: string;
     level: 1 | 2 | 3;
     parent?: mongoose.Types.ObjectId | null;
@@ -19,7 +19,7 @@ const CategoryDbSchema: Schema<CategoryDocument> = new Schema({
         type: String,
         trim: true
     },
-    image: {
+    images: {
         type: [String]
     },
     slug: {

@@ -10,7 +10,7 @@ const CategoryZodSchema = z.object({
         .trim()
         .min(10, { message: "Description should have at least 10 characters" })
         .optional(),
-    image: z
+    images: z
         .array(z.string().url({ message: "Image must be a valid URL" }))
         .min(1, { message: "At least one image is required" })
         .optional(),
