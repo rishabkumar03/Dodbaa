@@ -18,10 +18,69 @@ implement skeleton loading in frontend
 25-02-2026: Initially implement Razorpay and upgrade to strip pay for international payments 
 
 26-02-2026: We have to improve pinCode validation in address.schema.ts for global customers.
-=======
-change the name [Order] -> [Cart]
-Initially implement Razorpay and upgrade to strip pay for international payments 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ----------------------------------------------------------------------------------------------
 
 ## 1. `.index()` Parameters
 
