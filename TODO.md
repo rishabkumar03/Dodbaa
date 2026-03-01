@@ -19,6 +19,7 @@ implement skeleton loading in frontend
 
 26-02-2026: We have to improve pinCode validation in address.schema.ts for global customers.
 
+28-02-2026: Implement two more endpoints which are commented in user.controller.ts, after completions of wishlist and order controllers.
 28-02-26: Read about types/express.d.ts file
 
 

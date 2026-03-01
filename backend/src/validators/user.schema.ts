@@ -6,7 +6,8 @@ const UserZodSchema = z.object({
     fullname: z
         .string()
         .trim()
-        .min(2, { message: "Fullname should have atleast 2 characters" }),
+        .min(2, { message: "Fullname should have atleast 2 characters" })
+        .max(30),
 
     email: z
         .string()
