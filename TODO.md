@@ -22,8 +22,13 @@ implement skeleton loading in frontend
 28-02-2026: Implement two more endpoints which are commented in user.controller.ts, after completions of wishlist and order controllers.
 28-02-26: Read about types/express.d.ts file
 
-
-
+```js
+// What fieldErrors looks like — it's an OBJECT ❌ not an array
+{
+    name: ["too short"],
+    slug: ["Invalid slug format"]
+}
+```
 
 
 

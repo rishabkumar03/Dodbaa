@@ -37,5 +37,16 @@ const CategoryZodSchema = z.object({
     path: ["parent"]
 })
 
+export const UpdateCategoryZodSchema = CategoryZodSchema
+    .partial()
+    .refine((data) => {
+        if (data.level === 1 && data.parent) return false;
+        if (data.level && data.level > 1 && !data.parent) return false;
+        return true;
+    }, {
+        message: "Level 1 categories cannot have a parent. Level 2 and 3 must have a parent.",
+        path: ["parent"]
+    })
+
 export { CategoryZodSchema }
 export type CategoryInput = z.infer<typeof CategoryZodSchema>

@@ -17,7 +17,7 @@ const CategoryDbSchema: Schema<CategoryDocument> = new Schema({
     },
     description: {
         type: String,
-        trim: true
+        trim: true,
     },
     images: {
         type: [String]
