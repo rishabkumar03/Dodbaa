@@ -20,8 +20,7 @@ const CategoryZodSchema = z.object({
             )
 
         )
-        .min(1, { message: "At least one image is required" })
-        .optional(),
+        .min(1, { message: "At least one image is required" }),
     slug: z
         .string()
         .trim()

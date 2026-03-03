@@ -81,11 +81,15 @@ const addCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
 
 })
 
-// Get All Categories
-const getAllCategories = asyncHandler(async (req: MulterRequest, res: Response) => {
+// Get All Categories: based on parent level 0
+const getAllCategories = asyncHandler(async (req: Request, res: Response) => {
+    const { parent } = req.query;
+    if (!parent || typeof (parent) !== "string") {
+        throw new ApiError(400, "Parent is required")
+    }
     const categories = await CategoryModel.find();
 
-    if (!categories) {
+    if (categories.length === 0) {
         throw new ApiError(404, "No Categories Found!!")
     }
 
@@ -192,6 +196,32 @@ const updateCategory = asyncHandler(async (req: MulterRequest, res: Response) =>
     )
 })
 
+// Search Category
+const searchCategory = asyncHandler(async (req: Request, res: Response) => {
+    const { searchTerm } = req.query;
+    if (!searchTerm || typeof searchTerm !== "string") {
+        throw new ApiError(400, "Search term is required")
+    }
+
+    const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
+    const result = await CategoryModel.find({
+        name: { $regex: escapedTerm, $options: "i" }
+    })
+
+    if (result.length === 0) {
+        throw new ApiError(404, `No categories found for "${searchTerm}"`)
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            result,
+            "Category search successfull"
+        )
+    )
+})
+
 // Delete Category
 const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
     const categoryId = req.params?.id;
@@ -227,7 +257,7 @@ const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
     return res.status(200).json(
         new ApiResponse(
             200,
-            { deletedData },
+            deletedData,
             "Category Deleted Successfully"
         )
     )
@@ -237,5 +267,6 @@ export {
     addCategory,
     getAllCategories,
     updateCategory,
+    searchCategory,
     deleteCategory
 }

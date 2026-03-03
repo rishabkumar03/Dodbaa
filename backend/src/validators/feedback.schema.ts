@@ -12,12 +12,24 @@ const FeedbackZodSchema = z.object({
         .string()
         .trim()
         .optional(),
+    images: z
+        .array(
+            z.object(
+                {
+                    imageUrl: z.string().url({ message: "Image must be a valid URL" }),
+                    publicId: z.string()
+                }
+            )
+
+        )
+        .max(5, {message: "Feedback should contain at max 5 images"})
+        .optional(),
     isPurchaseVerified: z
         .boolean(),
     feedbackUserId: z
         .string()
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid User ID"),
-        
+
     feedbackProductId: z
         .string()
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID")

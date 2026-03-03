@@ -4,7 +4,10 @@ export interface FeedbackDocument extends Document {
     rating: number;
     comment: string;
     isPurchaseVerified: boolean
-
+    images: {
+        imageUrl: string,
+        publicId: string
+    }[]
     feedbackUserId: mongoose.Types.ObjectId;
     feedbackProductId: mongoose.Types.ObjectId;
 }
@@ -20,6 +23,12 @@ const FeedbackDbSchema: Schema<FeedbackDocument> = new Schema({
         type: String,
         trim: true
     },
+    images: [
+        {
+            imageUrl: { type: String },
+            publicId: { type: String }
+        }
+    ],
     isPurchaseVerified: {
         type: Boolean,
         default: false
