@@ -30,7 +30,8 @@ implement skeleton loading in frontend
 }
 ```
 
-
+implement slug, level and parent in category
+implement update endpoint in feedback -> cross-check
 
 
 
