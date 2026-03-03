@@ -1,9 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { required } from "zod/mini";
 
 export interface CategoryDocument extends Document {
     name: string;
     description: string
-    images: string[]
+    images: {
+        imageUrl: string,
+        publicId: string
+    }[]
     slug: string;
     level: 1 | 2 | 3;
     parent?: mongoose.Types.ObjectId | null;
@@ -19,9 +23,12 @@ const CategoryDbSchema: Schema<CategoryDocument> = new Schema({
         type: String,
         trim: true,
     },
-    images: {
-        type: [String]
-    },
+    images: [
+        {
+            imageUrl: { type: String, required: [true, "Image is required"] },
+            publicId: { type: String, required: [true, "Public Id is required"] }
+        }
+    ],
     slug: {
         type: String,
         required: [true, "Slug is required"],

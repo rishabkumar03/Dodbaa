@@ -1,6 +1,8 @@
 import { type Request, type Response } from "express"
 import { CategoryZodSchema, UpdateCategoryZodSchema } from "../validators/category.schema.js";
 import type { MulterRequest } from "../types/express.d.ts"
+import { CategoryModel } from "../models/category.model.js";
+import mongoose from "mongoose";
 import {
     ApiError,
     ApiResponse,
@@ -8,9 +10,6 @@ import {
     uploadOnCloudinary,
     deleteFromCloudinary
 } from "../utils/modules.js"
-import { CategoryModel } from "../models/category.model.js";
-import mongoose from "mongoose";
-import { file, promise } from "zod";
 
 // Add Category
 const addCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
@@ -29,7 +28,7 @@ const addCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
     // Step 3 — check if any upload failed
     const failedUpload = cloudinaryResponse.some(res => res === null)
     if (failedUpload) {
-        // cleanup successful uploads before throwing
+        // cleanup successful uploads before throwing error
         await Promise.all(
             cloudinaryResponse
                 .filter(res => res !== null) // it stores the uploaded images to delete
@@ -39,7 +38,10 @@ const addCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
     }
 
     // Step 4 — extract all URLs
-    req.body.images = cloudinaryResponse.map(res => res!.secure_url)
+    req.body.images = cloudinaryResponse.map(res => ({
+        imageUrl: res!.secure_url,
+        publicId: res!.public_id
+    }))
 
     // Step 5 — validate
     const result = CategoryZodSchema.safeParse(req.body)
@@ -58,7 +60,7 @@ const addCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
 
     const categoryData = Object.fromEntries(
         Object.entries({ name, description, slug, level, parent, images })
-            .filter((_, value) => value !== undefined)
+            .filter(([_, value]) => value !== undefined)
     )
 
     // Step 6 — save to DB
@@ -98,61 +100,129 @@ const getAllCategories = asyncHandler(async (req: MulterRequest, res: Response) 
 
 // Update Category
 const updateCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
-    // update images 
-    let uploadPromises;
-    if (req.files || req.files.length > 0) {
-        uploadPromises = (req.files as Express.Multer.File[]).map(file =>
-            uploadOnCloudinary(file.path)
-        )
 
+    // Step 1 — validate categoryId
+    const categoryId = req.params?.id
+
+    if (!categoryId || typeof categoryId !== "string") {
+        throw new ApiError(400, "Category ID is required")
     }
-
-    const cloudinaryResponse = await Promise.all(uploadPromises)
-
-    const failedUpload = cloudinaryResponse?.some(res => res === null);
-    if (failedUpload) {
-        // cleanup successful uploads before throwing
-        await Promise.all(
-            cloudinaryResponse
-                ?.filter(res => res !== null)
-                .map(res => deleteFromCloudinary(res!.public_id))
-        )
-    }
-
-    // validate user's data
-    const result = UpdateCategoryZodSchema.safeParse(req.body);
-    const categoryId = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-        throw new ApiError(
-            403,
-            "Invalid Category Id"
+        throw new ApiError(400, "Invalid Category ID")
+    }
+
+    // Step 2 — check category exists
+    const getCurrentCategory = await CategoryModel.findById(categoryId)
+
+    if (!getCurrentCategory) {
+        throw new ApiError(404, "Category not found")
+    }
+
+    // Step 3 — handle image uploads if files provided
+    let cloudinaryResponse: Awaited<ReturnType<typeof uploadOnCloudinary>>[] = []
+    const files = req.files as Express.Multer.File[]
+
+    if (files && files.length > 0) {
+
+        // Step 3a — upload new images
+        const uploadPromises = (files).map(file =>
+            uploadOnCloudinary(file.path)
         )
+        cloudinaryResponse = await Promise.all(uploadPromises)
+
+        // Step 3b — check if any upload failed
+        const failedUpload = cloudinaryResponse.some(res => res === null)
+        if (failedUpload) {
+            await Promise.all(
+                cloudinaryResponse
+                    .filter(res => res !== null)
+                    .map(res => deleteFromCloudinary(res!.public_id))
+            )
+            throw new ApiError(500, "One or more image uploads failed. Please try again.")
+        }
+
+        // Step 3c — delete previous images AFTER confirming new uploads succeeded 
+        const previousImages = getCurrentCategory.images
+        if (previousImages && previousImages.length > 0) {
+            await Promise.all(
+                previousImages.map(img => deleteFromCloudinary(img.publicId))
+            )
+        }
+
+        // Step 3d — attach new image data to body
+        req.body.images = cloudinaryResponse.map(res => ({
+            url: res!.secure_url,
+            publicId: res!.public_id
+        }))
     }
-    // check result.success
+
+    // Step 4 — validate with Zod
+    const result = UpdateCategoryZodSchema.safeParse(req.body)
+
     if (!result.success) {
-        throw new ApiError(403, "Validation failed");
+        // cleanup new uploads if validation fails
+        if (cloudinaryResponse.length > 0) {
+            await Promise.all(
+                cloudinaryResponse
+                    .filter(res => res !== null)
+                    .map(res => deleteFromCloudinary(res!.public_id))
+            )
+        }
+        throw new ApiError(400, "Validation failed", result.error.flatten().fieldErrors)
     }
 
+    const { name, description, slug, level, parent, images } = result.data
 
-    const updateData = await CategoryModel.findByIdAndUpdate(categoryId, {
+    // Step 5 — filter undefined values
+    const categoryData = Object.fromEntries(
+        Object.entries({ name, description, slug, level, parent, images })
+            .filter(([_, value]) => value !== undefined)
+    )
 
-    })
+    // Step 6 — save to DB atomically
+    const updatedCategory = await CategoryModel.findByIdAndUpdate(
+        categoryId,
+        { $set: categoryData },
+        { new: true }
+    )
+
+    return res.status(200).json(
+        new ApiResponse(200, updatedCategory, "Category updated successfully")
+    )
 })
 
 // Delete Category
-// TODO: store the public_id to delete image form cloudinary
-const deleteCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
-    const categoryId = req.params;
+const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
+    const categoryId = req.params?.id;
+
+    if (!categoryId || typeof categoryId !== "string") {
+        throw new ApiError(400, "Category ID is required");
+    }
 
     if (!mongoose.Types.ObjectId.isValid(categoryId)) {
         throw new ApiError(
             403,
             "Invalid Category Id"
-        )
+        );
+    }
+
+    // delete previous images
+    const category = await CategoryModel.findById(categoryId);
+    if (!category) {
+        throw new ApiError(404, "Category not found")
     }
 
     const deletedData = await CategoryModel.findByIdAndDelete(categoryId);
+
+    if (!deletedData) {
+        throw new ApiError(500, "Something went wrong while deleting category")
+    }
+
+    const previousImages = category.images;
+    await Promise.all(
+        previousImages.map(img => deleteFromCloudinary(img!.publicId))
+    )
 
     return res.status(200).json(
         new ApiResponse(
