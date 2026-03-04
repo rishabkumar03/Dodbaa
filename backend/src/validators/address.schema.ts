@@ -22,6 +22,12 @@ const AddressZodSchema = z.object({
         .string()
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid User ID")
 })
+export const UpdateAddressZodSchema = AddressZodSchema
+    .partial()
+    // .refine(d => d.userAddress !== undefined, {
+    //     message: "UserAddress(Id) can't be empty",
+    //     path: ["userAddress"]
+    // })
 
 export { AddressZodSchema }
 export type AddressInput = z.infer<typeof AddressZodSchema>

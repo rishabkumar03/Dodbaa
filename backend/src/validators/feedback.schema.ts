@@ -12,6 +12,7 @@ const FeedbackZodSchema = z.object({
         .string()
         .trim()
         .optional(),
+
     images: z
         .array(
             z.object(
@@ -22,10 +23,12 @@ const FeedbackZodSchema = z.object({
             )
 
         )
-        .max(5, {message: "Feedback should contain at max 5 images"})
+        .max(5, { message: "Feedback should contain at max 5 images" })
         .optional(),
+
     isPurchaseVerified: z
         .boolean(),
+
     feedbackUserId: z
         .string()
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid User ID"),
@@ -35,5 +38,13 @@ const FeedbackZodSchema = z.object({
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID")
 })
 
+export const UpdatefeedbackZodSchema = FeedbackZodSchema
+  .partial()
+  .refine(d => d.rating !== undefined && d.comment !== undefined, {
+    message: "Both rating and comment are required",
+    path: ["rating", "comment"]
+  });
+
 export { FeedbackZodSchema }
+
 export type FeedbackInput = z.infer<typeof FeedbackZodSchema>;

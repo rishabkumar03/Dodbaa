@@ -156,9 +156,35 @@ const updateCategory = asyncHandler(async (req: MulterRequest, res: Response) =>
 
         // Step 3d — attach new image data to body
         req.body.images = cloudinaryResponse.map(res => ({
-            url: res!.secure_url,
+            imageUrl: res!.secure_url,
             publicId: res!.public_id
         }))
+    }
+
+    // slug generation
+    if (req.body.name) {
+        req.body.slug = (req.body.name)
+            .toLowercase()
+            .trim()
+            .replace(/[^a-z0-9 ]/g, "")
+            .replace(/\s+/g, "-")
+    }
+
+    // auto level and parent assigning
+    if (!req.body.parent) {
+        req.body.level = 1;
+        req.body.parent = null;
+    } else {
+        // find parent to determine level
+        const parentCategory = await CategoryModel.findById(req.body.Parent)
+        if (!parentCategory) {
+            throw new ApiError(404, "Parent category not found")
+        }
+        req.body.level = parentCategory.level + 1;
+    }
+
+    if (req.body.level > 3) {
+        throw new ApiError(400, "Maximum category depth is 3 levels")
     }
 
     // Step 4 — validate with Zod
@@ -261,6 +287,11 @@ const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
             "Category Deleted Successfully"
         )
     )
+})
+
+// TODO: Get Category Tree
+const getCategoryTree = asyncHandler(async (req: Request, res: Response) => {
+    // implement this
 })
 
 export {

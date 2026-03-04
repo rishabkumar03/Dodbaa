@@ -30,10 +30,19 @@ implement skeleton loading in frontend
 }
 ```
 
-implement slug, level and parent in category
-implement update endpoint in feedback -> cross-check
+implement slug, level and parent in category ✅
+implement update endpoint in feedback -> cross-check ✅
+read about this 
+``` js 
+const query: Record<string, unknown> = {}
+```
+implement tree in category controller ⚠️
+add userId and productId in feedback controller ✅
+auto remove the sensitive filed from userModel while using .populate()
 
-
+```js
+!important => check for reference model link in documents
+```
 
 
 

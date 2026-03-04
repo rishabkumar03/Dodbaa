@@ -3,7 +3,10 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface ProductDocument extends Document {
     name: string;
     description: string;
-    images: string[];
+    images: {
+        imageUrl: string,
+        publicId: string
+    }[];
     price: number;
     avgRating: number;
     isAvailable: boolean;
@@ -23,14 +26,19 @@ const ProductDbSchema: Schema<ProductDocument> = new Schema({
         type: String,
         required: [true, "Description is required"]
     },
-    images: {
-        type: [String],
-        validate: {
-            validator: (v: string[]) => v.length >= 2,
-            message: "Product must have at least 2 images"
-        },
-        required: true
-    },
+    images: [
+        {
+            imageUrl: {
+                type: String,
+                required: [true, "Image is required"],
+                validate: {
+                    validator: (v: string[]) => v.length >= 2,
+                    message: "Product must have at least 2 images"
+                },
+            },
+            publicId: { type: String, required: [true, "Public Id is required"] }
+        }
+    ],
     price: {
         type: Number,
         required: [true, "Price is required"]

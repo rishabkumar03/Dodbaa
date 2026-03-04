@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { required } from "zod/mini";
 
 export interface CategoryDocument extends Document {
     name: string;
