@@ -635,3 +635,182 @@ let cloudinaryResponse: Awaited<ReturnType<typeof uploadOnCloudinary>>[] = []
 ```
 
 The dynamic `Awaited<ReturnType<...>>` approach is actually **better here** for exactly this reason — you don't need to know or import the Cloudinary type name at all. TypeScript figures it out automatically from the function itself.
+
+# -----------------[Next]---------------------------
+
+
+## `.lean()` — What it does and why it matters
+
+---
+
+### Without `.lean()` — Mongoose Document Object
+```ts
+const allCategories = await CategoryModel.find()
+
+// Each item is a full Mongoose Document object — heavy
+allCategories[0] = {
+    _id: "AAA111",
+    name: "Paintings",
+    level: 1,
+
+    // ALL of this hidden stuff comes with it:
+    $__: { ... },           // Mongoose internal state
+    $isNew: false,
+    _doc: { ... },          // actual data stored here
+    $locals: { ... },
+    $op: null,
+
+    // All Mongoose methods attached:
+    save(),
+    populate(),
+    toObject(),
+    toJSON(),
+    isModified(),
+    validate(),
+    // ...20+ more methods
+}
+```
+
+---
+
+### With `.lean()` — Plain JavaScript Object
+```ts
+const allCategories = await CategoryModel.find().lean()
+
+// Each item is a plain JS object — lightweight
+allCategories[0] = {
+    _id: "AAA111",
+    name: "Paintings",
+    level: 1,
+    parent: null,
+    slug: "paintings"
+    // that's it — nothing extra
+}
+```
+
+---
+
+### Performance difference
+
+```
+Without .lean()               With .lean()
+─────────────────────         ─────────────────────
+Full Mongoose Document        Plain JS object
+~5x more memory               Minimal memory
+Slower to create              Much faster
+Has save(), populate()        No methods at all
+Good for WRITE operations     Good for READ operations
+```
+
+---
+
+### When to use and when NOT to use
+
+```ts
+// ✅ USE .lean() — read only, sending to frontend
+const categories = await CategoryModel.find().lean()
+// just reading and returning data — no need for Mongoose methods
+
+// ✅ USE .lean() — building tree (like our getCategoryTree)
+// we only need the data, not Mongoose methods
+const allCategories = await CategoryModel.find().lean()
+
+// ❌ DON'T USE .lean() — you need to modify and save
+const category = await CategoryModel.findById(id)
+// need .save() method → don't use lean
+category.name = "New Name"
+await category.save()   // ← this method won't exist on lean result
+
+// ❌ DON'T USE .lean() — you need to populate refs
+const category = await CategoryModel.findById(id).populate("parent")
+// populate works differently with lean — avoid it
+```
+
+---
+
+### Simple rule
+
+```
+Reading data to send as response?     → use .lean()     ✅ faster
+Need to modify and save document?     → skip .lean()    ✅ has .save()
+```
+
+In the category tree specifically, `.lean()` matters because you're fetching potentially hundreds of categories and building a large nested structure — every bit of performance helps.
+
+
+# -----------------[Next]---------------------------
+
+Yes you can use `.lean()` with both — but it's **pointless** for delete and **only useful in specific cases** for update.
+
+---
+
+## `findByIdAndDelete().lean()`
+
+```ts
+// Without lean — returns full Mongoose Document
+const deleted = await CategoryModel.findByIdAndDelete(id)
+
+// With lean — returns plain JS object
+const deleted = await CategoryModel.findByIdAndDelete(id).lean()
+```
+
+Deletion happens either way — `.lean()` only affects the **returned document**. Since you're just sending the deleted data back in the response and never calling any Mongoose methods on it, lean works fine but makes almost no difference:
+
+```ts
+// Pointless to use lean here — you're just sending it in response
+const deleted = await CategoryModel.findByIdAndDelete(id).lean()
+return res.json(new ApiResponse(200, deleted, "Deleted successfully"))
+```
+
+---
+
+## `findByIdAndUpdate().lean()`
+
+```ts
+// Without lean — returns Mongoose Document
+const updated = await CategoryModel.findByIdAndUpdate(id, data, { new: true })
+
+// With lean — returns plain JS object
+const updated = await CategoryModel.findByIdAndUpdate(id, data, { new: true, lean: true })
+// OR
+const updated = await CategoryModel.findByIdAndUpdate(id, data, { new: true }).lean()
+```
+
+Useful only if you need to **read and return** the updated document without doing anything else with it:
+
+```ts
+// ✅ lean makes sense — just returning updated doc to frontend
+const updated = await CategoryModel.findByIdAndUpdate(id, data, { new: true }).lean()
+return res.json(new ApiResponse(200, updated, "Updated"))
+
+// ❌ lean wrong — you need methods after update
+const updated = await CategoryModel.findByIdAndUpdate(id, data, { new: true }).lean()
+await updated.save()       // ❌ crash — .save() doesn't exist on lean result
+updated.isModified("name") // ❌ crash — no Mongoose methods
+```
+
+---
+
+## Full picture
+
+```
+Method                    Use .lean()?    Why
+──────────────────────    ────────────    ──────────────────────────────
+find()                    ✅ YES          reading many docs — big perf gain
+findById()                ✅ YES          reading single doc for response
+findByIdAndUpdate()       ✅ optional     only if just returning result
+findByIdAndDelete()       ⚡ pointless    deleted anyway, tiny difference
+findById() + .save()      ❌ NO           need .save() method
+findById() + .populate()  ❌ NO           populate behaves differently
+```
+
+---
+
+### Bottom line
+
+```
+lean() = "give me raw data, I don't need Mongoose superpowers"
+
+If your next line after the query is res.json(...)  → lean() is fine
+If your next line does anything with the document   → skip lean()
+```

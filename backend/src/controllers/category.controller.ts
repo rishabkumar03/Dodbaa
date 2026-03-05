@@ -289,9 +289,37 @@ const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
     )
 })
 
-// TODO: Get Category Tree
+// Get Category Tree
 const getCategoryTree = asyncHandler(async (req: Request, res: Response) => {
-    // implement this
+    // Step 1 — get all categories in one DB call
+    const allCategories = await CategoryModel.find().lean();
+
+    if (!allCategories) {
+        throw new ApiError(404, "No categories found");
+    }
+
+    // Step 2 — separate by level
+    const level1 = allCategories.filter(c => c.level === 1);
+    const level2 = allCategories.filter(c => c.level === 2);
+    const level3 = allCategories.filter(c => c.level === 3);
+
+    // Step 3 — nest them together
+    const tree = level1.map(parent => ({
+        ...parent,  // spread: _id, name, slug, level, images etc at level 1
+        children: level2.filter(sub => sub.parent?.toString() === parent._id?.toString())
+            .map(sub => ({
+                ...sub,  // spread: _id, name, slug, level, images etc at level2
+                children: level3.filter(subsub => subsub.parent?.toString() === sub.parent?._id?.toString())
+            }))
+    }))
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            tree,
+            "Category tree fetched successfully"
+        )
+    )
 })
 
 export {
@@ -299,5 +327,6 @@ export {
     getAllCategories,
     updateCategory,
     searchCategory,
-    deleteCategory
+    deleteCategory,
+    getCategoryTree
 }
