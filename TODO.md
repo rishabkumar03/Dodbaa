@@ -22,6 +22,8 @@ implement skeleton loading in frontend
 28-02-2026: Implement two more endpoints which are commented in user.controller.ts, after completions of wishlist and order controllers.
 28-02-26: Read about types/express.d.ts file
 
+03-03-2026: Implement auth middleware, which will be used in all protected routes. This will ensure that only authenticated users can access certain endpoints.
+
 ```js
 // What fieldErrors looks like — it's an OBJECT ❌ not an array
 {
