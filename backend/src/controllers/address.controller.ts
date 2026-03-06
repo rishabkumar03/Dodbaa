@@ -15,7 +15,7 @@ const createAddress = asyncHandler(async (req: Request, res: Response) => {
         throw new ApiError(400, "User Id is required");
     }
 
-    if (mongoose.Types.ObjectId.isValid(userId)) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
         throw new ApiError(400, "Invalid User Id");
     }
 
@@ -113,15 +113,15 @@ const updateAddress = asyncHandler(async (req: Request, res: Response) => {
             .filter(([_, value]) => value !== undefined)
     )
 
-    await AddressModel.findByIdAndUpdate(addressObjectId,
-        { $set: { addressData } },
+    const updatedAddress = await AddressModel.findByIdAndUpdate(addressObjectId,
+        { $set: addressData },
         { new: true }
     )
 
     return res.status(200).json(
         new ApiResponse(
             200,
-            {},
+            {updatedAddress},
             "Address Updated Successfully"
         )
     )
@@ -154,7 +154,7 @@ const deleteAddress = asyncHandler(async (req: Request, res: Response) => {
         throw new ApiError(404, "Address not found")
     }
 
-    const deletedAddress = await AddressModel.findOneAndDelete(existingAddress?._id);
+    const deletedAddress = await AddressModel.findByIdAndDelete(existingAddress?._id);
     if (!deletedAddress) {
         throw new ApiError(500, "Something went wrong while deleting the address")
     }

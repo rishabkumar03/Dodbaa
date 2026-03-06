@@ -74,7 +74,7 @@ const createFeedback = asyncHandler(async (req: MulterRequest, res: Response) =>
     )
 
     const newFeedback = await (await FeedbackModel.create(feedbackData))
-        .populate("fullname")
+        .populate("feedbackUserId", "fullname")
 
     if (!newFeedback) {
         throw new ApiError(500, "Something went wrong while creating new feedback")
@@ -102,7 +102,7 @@ const getAllFeedbacks = asyncHandler(async (req: Request, res: Response) => {
     }
 
     const result = await FeedbackModel.find(query)
-        .populate("fullname");
+        .populate("feedbackUserId", "fullname email")
 
     if (result.length === 0) {
         throw new ApiError(404, "No feedbacks found")
@@ -138,7 +138,7 @@ const updateFeedback = asyncHandler(async (req: MulterRequest, res: Response) =>
     // Step 2 — check feedback exists
     const feedbackUserObjectId = new mongoose.Types.ObjectId(userId);
     const feedbackObjectId = new mongoose.Types.ObjectId(feedbackId);
-    
+
     const getCurrentfeedback = await FeedbackModel.findOne({ _id: feedbackObjectId, feedbackUserId: feedbackUserObjectId })
 
     if (!getCurrentfeedback) {
@@ -224,8 +224,8 @@ const deleteFeedback = asyncHandler(async (req: Request, res: Response) => {
     if (!feedbackId || typeof (feedbackId) !== "string") {
         throw new ApiError(403, " Feedback Id is required")
     }
-    if (mongoose.Types.ObjectId.isValid(feedbackId)) {
-        throw new ApiError(403, "Invalid Feedback Id");
+    if (!mongoose.Types.ObjectId.isValid(feedbackId)) {
+        throw new ApiError(404, "Invalid Feedback Id");
     }
 
     const previousFeedback = await FeedbackModel.findById(feedbackId)
@@ -239,7 +239,7 @@ const deleteFeedback = asyncHandler(async (req: Request, res: Response) => {
         throw new ApiError(500, "Something went wrong while deleting Feedback")
     }
 
-    if (previousFeedbackImages) {
+    if (previousFeedbackImages && previousFeedbackImages.length > 0) {
         await Promise.all(
             previousFeedbackImages.map(img => deleteFromCloudinary(img!.publicId))
         )

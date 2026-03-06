@@ -84,10 +84,22 @@ const addCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
 // Get All Categories: based on parent level 0
 const getAllCategories = asyncHandler(async (req: Request, res: Response) => {
     const { parent } = req.query;
+
     if (!parent || typeof (parent) !== "string") {
         throw new ApiError(400, "Parent is required")
     }
-    const categories = await CategoryModel.find();
+
+    const query: Record<string, unknown> = {}
+
+    if (parent === "null") {
+        query.parent = null
+    } else if (mongoose.Types.ObjectId.isValid(parent)) {
+        query.parent = new mongoose.Types.ObjectId(parent)
+    } else {
+        throw new ApiError(400, "Invalid parent value")
+    }
+
+    const categories = await CategoryModel.find(query)
 
     if (categories.length === 0) {
         throw new ApiError(404, "No Categories Found!!")
@@ -164,7 +176,7 @@ const updateCategory = asyncHandler(async (req: MulterRequest, res: Response) =>
     // slug generation
     if (req.body.name) {
         req.body.slug = (req.body.name)
-            .toLowercase()
+            .toLowerCase()
             .trim()
             .replace(/[^a-z0-9 ]/g, "")
             .replace(/\s+/g, "-")
@@ -176,7 +188,7 @@ const updateCategory = asyncHandler(async (req: MulterRequest, res: Response) =>
         req.body.parent = null;
     } else {
         // find parent to determine level
-        const parentCategory = await CategoryModel.findById(req.body.Parent)
+        const parentCategory = await CategoryModel.findById(req.body.parent)
         if (!parentCategory) {
             throw new ApiError(404, "Parent category not found")
         }
@@ -294,7 +306,7 @@ const getCategoryTree = asyncHandler(async (req: Request, res: Response) => {
     // Step 1 — get all categories in one DB call
     const allCategories = await CategoryModel.find().lean();
 
-    if (!allCategories) {
+    if (allCategories.length === 0) {
         throw new ApiError(404, "No categories found");
     }
 
@@ -309,7 +321,7 @@ const getCategoryTree = asyncHandler(async (req: Request, res: Response) => {
         children: level2.filter(sub => sub.parent?.toString() === parent._id?.toString())
             .map(sub => ({
                 ...sub,  // spread: _id, name, slug, level, images etc at level2
-                children: level3.filter(subsub => subsub.parent?.toString() === sub.parent?._id?.toString())
+                children: level3.filter(subsub => subsub.parent?.toString() === sub._id?.toString())
             }))
     }))
 
