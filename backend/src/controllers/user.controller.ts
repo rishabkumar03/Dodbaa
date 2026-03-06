@@ -1,10 +1,11 @@
 import { asyncHandler, ApiError, ApiResponse } from "../utils/modules.js";
 import { UserModel } from "../models/user.model.js";
-import { UserZodSchema } from "../validators/user.schema.js";
+import { UserZodSchema, LoginZodSchema, PasswordChangeSchema } from "../validators/user.schema.js"
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
 import type { Request } from "express";
-import z from "zod";
+
+// Express's Request object has fixed fields like body, cookies, headers etc., so basically I added a custom field 'user' which I declared globally
 
 declare global {
     namespace Express {
@@ -70,9 +71,14 @@ const registerUser = asyncHandler( async (req, res) => {
     // return response
 
     // This is the perfect use of validators (here user.validator.ts)
+    // safeParse returns a clean result object unlike parse, which throws an ugly error if validation fail 
+
     const parsed = UserZodSchema.safeParse(req.body)
 
     if (!parsed.success) {
+
+        // parsed.error?.issues[0]?.message shows the first validation error message when something fails.
+
         throw new ApiError(400, parsed.error?.issues[0]?.message || "Validation failed", [], "")
     }
 
@@ -87,10 +93,19 @@ const registerUser = asyncHandler( async (req, res) => {
     }
 
     const filteredData = Object.fromEntries(
+
+        // Object.entries convert data into pair of keys & values.
+        // here, _ = key 
+        // value will be filtered out (accessed) when the value is not undefined basically.
+        // Object.fromEntries converts the data into object then.
+
         Object.entries(parsed.data).filter(([_, value]) => value !== undefined)
     )
 
     const createdUser = await UserModel.create(filteredData)
+
+    // password & refreshToken is stored in _ (which is known as throwaway variable)
+    // Everything goes inside userResponse by destructuring concept
 
     const { password: _, refreshToken: __, ...userResponse } = createdUser.toObject()
 
@@ -115,14 +130,26 @@ const loginUser = asyncHandler(async(req, res) => {
     // access and refresh token
     // send cookie
 
-    const { email, phone, password } = req.body
+    // Validate req.body with Zod initially
 
-    if (!email && !phone) {
-        throw new ApiError(400, "Email or Phone Number is required", [], "")
+    const parsed = LoginZodSchema.safeParse(req.body)
+
+    if (!parsed.success) {
+        throw new ApiError(400, parsed.error.issues[0]?.message || "Validation failed", [], "")
     }
 
+    // Using parsed.data instead of req.body
+
+    const { email, phone, password } = parsed.data
+
+    // the orConditions will help in including specific fields that exist
+
+    const orConditions = []
+    if (email) orConditions.push({ email })
+    if (phone) orConditions.push({ phone })
+
     const user = await UserModel.findOne({
-        $or: [{email}, {phone}]
+        $or: orConditions
     })
 
     if (!user) {
@@ -227,9 +254,15 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
 
+    const parsed = PasswordChangeSchema.safeParse(req.body)
+
+    if (!parsed.success) {
+        throw new ApiError(400, parsed.error.issues[0]?.message, [], "")
+    }
+
     // validation between old password and updated password
 
-    const { oldPassword, newPassword } = req.body
+    const { oldPassword, newPassword } = parsed.data
 
     const user = await UserModel.findById(req.user?._id)
     
@@ -243,17 +276,15 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
         throw new ApiError (400, "Invalid old password", [], "")
     }
 
-    const PasswordChangeSchema = z.object({
-        oldPassword: z.string().min(1),
-        newPassword: z
-            .string()
-            .min(6, "Password must atleast 6 characters")
-    })
-
     const isSamePassword = await user.isPasswordCorrect(newPassword)
     if (isSamePassword) {
         throw new ApiError(400, "New password cannot be same as old password", [], "")
     }
+
+    // Now, bcrypt will do its job automatically so validation won't work after hashing
+
+    user.password = newPassword
+    await user.save({ validateBeforeSave: false })
 
     return res
     .status(200)
@@ -285,6 +316,9 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
 
     const existingUser = await UserModel.findOne({
         $or: [{ email }, { phone }],
+
+        // $ne refers to 'not equal', basically it excludes the specific user who wants to update his email
+
         _id: { $ne: req.user._id }
     })
 
