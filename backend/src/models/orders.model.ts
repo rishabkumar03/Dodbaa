@@ -4,6 +4,7 @@ export interface OrderDocument extends Document {
   userId: mongoose.Types.ObjectId;
   items: mongoose.Types.ObjectId[];   // references OrderItem
   totalAmount: number;
+  userAddress: mongoose.Types.ObjectId;
   orderStatus: "Order Placed" | "Order Shipped" | "Order Delivered";
 }
 
@@ -34,6 +35,11 @@ const OrderDbSchema: Schema<OrderDocument> = new Schema(
       enum: ["Order Placed", "Order Shipped", "Order Delivered", "Order Cancelled", "Order Returned"],
       default: "Order Placed",
     },
+
+    userAddress: {
+      type: mongoose.Types.ObjectId,
+      ref: "AddressModel",
+    }
   },
   { timestamps: true }
 );

@@ -11,6 +11,12 @@ const OrderZodSchema = z.object({
         .number()
         .min(0, { message: "Total Amount should be greater than 0" }),
 
+    userAddress: z
+        .string()
+        .trim()
+        .regex(/^[0-9a-fA-F]{24}$/, "Invalid User Address ID")
+        .min(1, { message: "UserAddress ID is required" }),
+
     orderStatus: z
         .enum(["Order Placed", "Order Shipped", "Order Delivered"]),
 
