@@ -13,3 +13,48 @@ git push origin branch_name
 Todos:
 - learn about zod in node.js
 - take a look into typescript generics
+
+                paintings 
+1. Indian paintings
+ . pattachitra 
+ . madhubani 
+ . Kalighat
+ . Folk art 
+
+2. Western paintings
+ . Water colours 
+ . Creative 
+ . Realistic 
+ . Acrylic paitings
+ . Oil painting 
+ . oil pastel
+
+                                 Sculpture 
+ . Stone 
+ . Wood 
+ . Fibre
+ . Teracotta                        
+ . Metal Casting
+    (low relief, high relief, round figure) 
+                                            Ceramics
+ . pottery (terracotta)
+ . vases
+ . plates         
+                                            keychains 
+ . metal
+ . wooden
+ . china clay
+ . Teracotta 
+ . molded clay 
+                                           Sketch 
+ . graphite sketch
+ . charcoal sketch
+ . pencil portrait
+                                             OTHERS
+ 
+ . Bottle craft 
+ . mirror craft 
+ . Lippan art
+ . Macrame (Purse, Jhoomer, Mirror)
+ . crochet
+ . stone art (painting and carving)
