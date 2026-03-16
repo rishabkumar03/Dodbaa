@@ -13,23 +13,25 @@ import { SORT_TYPE } from "../utils/constants.js";
 
 // Add Product
 const addProduct = asyncHandler(async (req: MulterRequest, res) => {
-    // check for files
+    // Step 1 — check files
     const files = req.files as Express.Multer.File[];
-    if (!files) {
+    if (!files || files.length === 0) {
         throw new ApiError(400, "Product images are required")
     }
 
+    // Step 2 — upload to cloudinary
     const uploadPromises = files.map(file => uploadOnCloudinary(file.path));
-
     const cloudinaryResponse = await Promise.all(uploadPromises);
 
+    // Step 3 — check failed uploads
     const failedUpload = cloudinaryResponse.some(res => res === null);
     if (failedUpload) {
         await Promise.all(
             cloudinaryResponse
-                .filter(res => res !== null || undefined)
+                .filter(res => res !== null)
                 .map(res => deleteFromCloudinary(res!.public_id))
         )
+        throw new ApiError(500, "One or more image uploads failed")
     }
 
     req.body.images = cloudinaryResponse.map(img => ({
@@ -37,7 +39,7 @@ const addProduct = asyncHandler(async (req: MulterRequest, res) => {
         publicId: img!.public_id
     }))
 
-    // String value validation
+    // Step 5 — validate
     // front-end data => category = "14b34as45" same for subCategory & subSubCategory
 
     const result = ProductZodSchema.safeParse(req.body);
@@ -50,7 +52,7 @@ const addProduct = asyncHandler(async (req: MulterRequest, res) => {
         throw new ApiError(400, "Validation failed", result.error.flatten().fieldErrors)
     }
 
-    // check for the undefined fields
+    // Step 6 — filter undefined and save
     const productData = Object.fromEntries(
         Object.entries(result.data)
             .filter(([_, value]) => value !== undefined)
@@ -61,7 +63,7 @@ const addProduct = asyncHandler(async (req: MulterRequest, res) => {
         throw new ApiError(500, "Something went wrong while adding new product")
     }
 
-    return res.status(200).json(
+    return res.status(201).json(
         new ApiResponse(
             201,
             newProduct,
@@ -86,43 +88,50 @@ const updateProduct = asyncHandler(async (req: MulterRequest, res) => {
     if (!existingProduct) {
         throw new ApiError(404, "No Existing product found")
     }
+
     let cloudinaryResponse: Awaited<ReturnType<typeof uploadOnCloudinary>>[] = []
     const files = req.files as Express.Multer.File[];
-    if (files) {
-        const existingProductImg = existingProduct.images;
+
+    if (files && files.length > 0) {
+        // Step 1 — upload new images
         const uploadPromises = files.map(file => uploadOnCloudinary(file.path))
         cloudinaryResponse = await Promise.all(uploadPromises)
+
+        // Step 2 — check failed uploads
         const failedUpload = cloudinaryResponse.some(res => res === null)
         if (failedUpload) {
             await Promise.all(
-                cloudinaryResponse.filter(res => res !== null || undefined)
+                cloudinaryResponse.filter(res => res !== null)
                     .map(res => deleteFromCloudinary(res!.public_id))
             )
 
             throw new ApiError(500, "Something went wrong while uploading the images")
         }
 
-        existingProduct.images = cloudinaryResponse.map(res => ({
+        // Step 3 — attach new images to body
+        req.body.images = cloudinaryResponse.map(res => ({
             imageUrl: res!.secure_url,
             publicId: res!.public_id
         }))
 
-        req.body.images = existingProduct.images;
-
-        // delete old images
-        await Promise.all(
-            existingProductImg.map(img => deleteFromCloudinary(img.publicId))
-        )
     }
 
+    // Step 4 — validate BEFORE deleting old images
     const result = UpdateProductZodSchema.safeParse(req.body);
     if (!result.success) {
         await Promise.all(
-            cloudinaryResponse.filter(res => res !== null || undefined)
+            cloudinaryResponse.filter(res => res !== null)
                 .map(res => deleteFromCloudinary(res!.public_id))
         )
 
         throw new ApiError(400, "Validation failed", result.error.flatten().fieldErrors)
+    }
+
+    // Step 5 — delete old images ONLY after validation passes
+    if (files && files.length > 0) {
+        await Promise.all(
+            existingProduct.images.map(img => deleteFromCloudinary(img.publicId))
+        )
     }
 
     const productData = Object.fromEntries(
@@ -176,16 +185,17 @@ const deleteProduct = asyncHandler(async (req, res) => {
         throw new ApiError(404, "No product found")
     }
 
-    const existingProductImg = existingProduct.images;
     const deletedProduct = await ProductModel.findByIdAndDelete(productId);
     if (!deletedProduct) {
         throw new ApiError(500, "Something went wrong while deleting product")
     }
 
-    // delete existing images
-    await Promise.all(
-        existingProductImg.map(img => deleteFromCloudinary(img.publicId))
-    )
+    // delete images after DB deletion confirmed
+    if (existingProduct.images.length > 0) {
+        await Promise.all(
+            existingProduct.images.map(img => deleteFromCloudinary(img.publicId))
+        )
+    }
 
     return res.status(200).json(
         new ApiResponse(
@@ -198,40 +208,51 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
 // Search Products
 const searchProducts = asyncHandler(async (req, res) => {
-    const { name, price, avgRating = 0, sortType = "ascending", sortBy = 1 } = req.query;
+    const {
+        name,
+        price,
+        avgRating = 0,
+        sortType = "ascending",
+        sortBy = 1
+    } = req.query;
 
     // base filter
-    let filter = {
-        isAvailable: true
-    }
+    const filter: Record<string, unknown> = { isAvailable: true }
 
     if (name && typeof name === "string" && name.trim() !== "") {
-        filter = {
-            ...filter,
-            $or: [
-                { name: { $regex: name, $option: 'i' } }
-            ]
-        }
+        const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        filter.name = { $regex: escapedName, $options: "i" }
     }
+
     if (price) {
-        filter.price = Number(price);
-    }
-    if (avgRating) {
-        filter.avgRating = Number(avgRating);
-    }
-
-    let sortVal = null;
-    if (sortType && typeof sortType === "string" && sortType.trim() !== "") {
-        const normalizedSortType = sortType.toLowerCase();
-        if (normalizedSortType.includes(SORT_TYPE.ASCE)) {
-            sortVal = 1;
-        } else {
-            sortVal = -1;
+        const parsedPrice = Number(price);
+        if (isNaN(parsedPrice) || parsedPrice < 0) {
+            throw new ApiError(400, "Invalid price value")
         }
+        filter.price = { $lte: parsedPrice }  // products AT OR BELOW this price
     }
 
-    const result = await ProductModel.find(filter);
-    if (!result) {
+    if (avgRating) {
+        const parsedRating = Number(avgRating)
+        if (isNaN(parsedRating) || parsedRating < 0 || parsedRating > 5) {
+            throw new ApiError(400, "Rating must be between 0 and 5")
+        }
+        filter.avgRating = { $gte: parsedRating }  // products AT OR ABOVE this rating
+    }
+
+    let sortVal: 1 | -1 = 1
+    if (sortType && typeof sortType === "string") {
+        sortVal = sortType.toLowerCase().includes(SORT_TYPE.ASCE) ? 1 : -1
+    }
+
+    const sortField = typeof sortBy === "string" ? sortBy : "price"
+
+    const result = await ProductModel
+        .find(filter)
+        .sort({ [sortField]: sortVal })
+        .lean();
+
+    if (result.length === 0) {
         throw new ApiError(404, "No result found")
     }
 
