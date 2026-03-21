@@ -1051,3 +1051,51 @@ So the rule is simple:
 Storing key-value pairs?   → Record<string, ValueType>  or  { key: type }
 Storing a list?            → Type[]                     or  Array<Type>
 ```
+
+# -----------------[Next]---------------------------
+```js
+[
+    {
+        "_id": "AAA111",
+        "name": "Paintings",
+        "level": 1,
+        "children": [
+            {
+                "_id": "BBB222",
+                "name": "Oil Paintings",
+                "level": 2,
+                "children": [
+                    {
+                        "_id": "CCC333",
+                        "name": "Abstract Oil",
+                        "level": 3,
+                        "children": []
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "_id": "DDD444",
+        "name": "Keychains",
+        "level": 1,
+        "children": [...]
+    }
+]
+```
+
+---
+
+### Key rule to remember
+```
+Adding category:
+
+Has parent ID?
+    │
+    ├── NO  → level = 1, parent = null   (main category)
+    │
+    └── YES → find parent in DB
+                    │
+                    ├── parent.level = 1 → child level = 2 (subcategory)
+                    ├── parent.level = 2 → child level = 3 (sub-subcategory)
+                    └── parent.level = 3 → ❌ reject, max depth reached

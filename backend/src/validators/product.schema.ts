@@ -43,6 +43,6 @@ const ProductZodSchema = z.object({
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid Category ID")
         .optional()
 })
-
+export const UpdateProductZodSchema = ProductZodSchema.partial()
 export { ProductZodSchema }
 export type ProductInput = z.infer<typeof ProductZodSchema>;

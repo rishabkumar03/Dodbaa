@@ -46,12 +46,18 @@ auto remove the sensitive filed from userModel while using .populate()
 !important => check for reference model link in documents
 ```
 
+read about where we can use bi direction for OrderId -> usecase
+
+fix this code in Rishab's code file
+import { type Request } from "express"
+
+export type MulterRequest = Request & {
+    file?: Express.Multer.File | undefined        // for single file upload
+    files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] } | undefined     // for multiple file uploads
+}
 
 
-
-
-
-
+read about middlewares
 
 
 

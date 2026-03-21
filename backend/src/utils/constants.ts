@@ -1,5 +1,10 @@
 export const DB_NAME = "Dodbaa"
 
+export const SORT_TYPE = {
+  ASCE: "ascending",
+  DESC: "descending"
+}
+
 export const CATEGORY_TREE = {
   paintings: {
     indian_paintings: [

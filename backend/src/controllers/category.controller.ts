@@ -74,7 +74,7 @@ const addCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
     return res.status(201).json(
         new ApiResponse(
             201,
-            { category },
+            category,
             "Category Created Successfully"
         )
     )

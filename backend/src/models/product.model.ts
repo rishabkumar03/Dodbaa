@@ -10,7 +10,6 @@ export interface ProductDocument extends Document {
     price: number;
     avgRating: number;
     isAvailable: boolean;
-
     category: mongoose.Types.ObjectId;
     subCategory: mongoose.Types.ObjectId;
     subSubCategory: mongoose.Types.ObjectId;
