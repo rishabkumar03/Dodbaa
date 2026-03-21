@@ -1,6 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 interface ArtistDocument extends Document {
+    userId: mongoose.Types.ObjectId
+    status: string
+    rejectionReason?: string
     displayName: string
     specialization: string[]
     isVerified: boolean
@@ -13,9 +16,25 @@ interface ArtistDocument extends Document {
 }
 
 const ArtistDbSchema: Schema<ArtistDocument> = new Schema({
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "UserModel",
+        required: true,
+        unique: true
+    },
+    status: {
+        type: String,
+        enum: ["pending", "approved", "rejected"],
+        default: "pending"
+    },
+    rejectionReason: {
+        type: String,
+        default: null
+    },
     displayName: {
         type: String,
-        trim: true
+        trim: true, 
+        unique: true
     },
     specialization: [
         {
@@ -37,7 +56,7 @@ const ArtistDbSchema: Schema<ArtistDocument> = new Schema({
     },
     isActive: {
         type: Boolean,
-        default: true
+        default: false
     },
     bio: {
         type: String,

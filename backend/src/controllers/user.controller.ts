@@ -2,23 +2,7 @@ import { asyncHandler, ApiError, ApiResponse } from "../utils/modules.js";
 import { UserModel } from "../models/user.model.js";
 import { UserZodSchema, LoginZodSchema, PasswordChangeSchema } from "../validators/user.schema.js"
 import jwt from "jsonwebtoken"
-import mongoose from "mongoose";
 import type { Request } from "express";
-
-// Express's Request object has fixed fields like body, cookies, headers etc., so basically I added a custom field 'user' which I declared globally
-
-declare global {
-    namespace Express {
-        interface Request {
-            user?: {
-                _id: mongoose.Types.ObjectId;
-                fullname: string;
-                email: string;
-                role: "user"| "artist" | "admin";
-            }
-        }
-    }
-}
 
 // declared accessTokenOptions & refreshTokenOptions globally for usage in every needed scenario
 // maxAge is used for longer mortality of tokens. now the cookie won't die when browser closes. (Sufficient for users)
