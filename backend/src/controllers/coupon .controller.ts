@@ -153,7 +153,7 @@ const getAllCoupons = asyncHandler(async (req, res) => {
         isActive: true,
         couponExpiry: { $gt: new Date() }
     }).lean();
-    
+
     if (result.length === 0) {
         throw new ApiError(404, "No coupon found")
     }
@@ -167,9 +167,69 @@ const getAllCoupons = asyncHandler(async (req, res) => {
     )
 })
 
+const toggleCouponState = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    if (!id || typeof id !== "string") {
+        throw new ApiError(400, "Invalid Id parameter")
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid Id")
+    }
+
+    const existingCoupon = await CouponModel.findById(id)
+    if (!existingCoupon) {
+        throw new ApiError(404, "Coupon not found")
+    }
+
+    const updatedCoupon = await CouponModel.findByIdAndUpdate(id,
+        { $set: { isActive: { $not: "$isActive" } } },
+        { new: true }
+    )
+    if (!updatedCoupon) {
+        throw new ApiError(500, "Something went wrong while toggling the coupon state")
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            updatedCoupon,
+            "Coupon state toggled successfully"
+        )
+    )
+})
+
+const searchCoupon = asyncHandler(async (req, res) => {
+    const { couponName } = req.query;
+    if (!couponName || typeof couponName !== "string") {
+        throw new ApiError(400, "Invalid parameter")
+    }
+
+    const existingCoupon = await CouponModel.findOne({ couponName })
+
+    // check coupon expiry
+    if (existingCoupon && existingCoupon?.couponExpiry > new Date()) {
+        throw new ApiError(400, "Coupon Expired")
+    }
+    if (!existingCoupon) {
+        throw new ApiError(404, "Invalid Coupoun Code:coupon not found")
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            existingCoupon,
+            "Coupoun fetched successfully"
+        )
+    )
+
+})
+
 export {
     setCoupoun,
     deleteCoupon,
     updateCoupon,
-    getAllCoupons
+    getAllCoupons,
+    toggleCouponState,
+    searchCoupon
 }
