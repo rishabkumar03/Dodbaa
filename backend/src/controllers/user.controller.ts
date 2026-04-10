@@ -328,11 +328,6 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
 
 })
 
-/*
-    getUserWishlist
-    getUserOrderHistory
-*/
-
 export {
     registerUser,
     loginUser,

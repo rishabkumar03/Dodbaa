@@ -133,7 +133,7 @@ const approveArtist = asyncHandler(async(req, res) => {
 
 const rejectArtist = asyncHandler(async(req, res) => {
 
-    const { artistId }= req.params;
+    const { artistId } = req.params;
 
     if (!artistId) {
         throw new ApiError(400, "Artist ID is required", [], "")
@@ -274,7 +274,7 @@ const getAllApplications = asyncHandler(async (req, res) => {
     {
         $addFields: {
             owner: {
-                $first: "$userDetails"   // 
+                $first: "$userDetails"   
             }
         }
     },
