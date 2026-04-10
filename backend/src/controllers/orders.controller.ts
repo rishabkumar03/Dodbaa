@@ -168,8 +168,119 @@ const getAllOrders = asyncHandler(async (req, res) => {
     )
 })
 
+// use $lookup to join with OrderItemModel (priceAtPurchase, quantity) and ProductModel (name, images, isAvailable, category) for details
+// support pagination
+const getUserOrder = asyncHandler(async (req, res) => {
+
+    if (!req.user) {
+        throw new ApiError(401, "Unauthorized", [], "")
+    }
+
+    const {
+        page = "1",
+        limit = "10",
+        sortBy = "desc"
+    } = req.query
+
+    if (sortBy && !["asc", "desc"].includes(sortBy as string)) {
+        throw new ApiError(400, "sortBy must be 'asc' or 'desc'", [], "")
+    }
+
+    const pipeline : mongoose.PipelineStage[] = []
+
+    pipeline.push({
+        $match: { userId: new mongoose.Types.ObjectId(req.user._id) }
+    })
+    
+    pipeline.push({
+        $lookup: {
+            from: "productModels",
+            localField: "productId",
+            foreignField: "_id",
+            as: "productDetails",
+            pipeline: [
+                {
+                    $project: {
+                        name: 1,
+                        images: 1,
+                        isAvailable: 1,
+                        category: 1
+                    }
+                }
+            ]
+        }
+    })
+
+    pipeline.push({
+        $lookup: {
+            from: "orderItemModels",
+            localField: "productDetails.orderItemId",
+            foreignField: "_id",
+            as: "orderItemDetails",
+            pipeline: [
+                {
+                    $project: {
+                        priceAtPurchase: 1,
+                        quantity: 1
+                    }
+                }
+            ]
+        }
+    },
+    {
+        $addFields: {
+            orderItem: {
+                $first: "$orderItemDetails"
+            }
+        }
+    },
+    {
+        $unset: "orderItemDetails"
+    })
+
+    const sortOrder = sortBy === "asc" ? 1 : -1
+
+    pipeline.push({
+        $sort: { createdAt: sortOrder }
+    })
+
+    const pageNum = parseInt(page as string)
+    const limitNum = parseInt(limit as string)
+    const skip = (pageNum - 1) * limitNum
+
+    const countPipeline = [...pipeline, { $count: "total" }]
+
+    pipeline.push({ $skip: skip })
+    pipeline.push({ $limit: limitNum })
+
+    const [ orders, countResult ] = await Promise.all([
+        OrderModel.aggregate(pipeline),
+        OrderModel.aggregate(countPipeline)
+    ])
+
+    const total = countResult[0]?.total || 0
+    const totalPages = Math.ceil( total / limitNum )
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, {
+            orders,
+            pagination: {
+                currentPage: pageNum,
+                totalPages,
+                total,
+                hasPrevPage: pageNum > 1,
+                hasNextPage: pageNum < totalPages
+            }
+        },
+        "Orders fetched successfully")
+    )
+})
+
 export {
     createOrder,
     deleteOrder,
-    getAllOrders
+    getAllOrders,
+    getUserOrder
 }
