@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import z from "zod";
 
 const cartZodSchema = z.object({
+    userId: z.union([
+        z.string().refine(val => mongoose.Types.ObjectId.isValid(val), "Invalid ObjectId"),
+        z.instanceof(mongoose.Types.ObjectId)
+    ]),
     productDetails: z.array(
         z.object(
             {
@@ -10,15 +14,16 @@ const cartZodSchema = z.object({
                     .refine((val) => mongoose.Types.ObjectId.isValid(val), {
                         message: "Invalid ObjectId format",
                     }),
-                productName: z.string({ message: "Product Name is required" }),
-                productDesc: z.string({ message: "Product Description is required" }),
-                productPrict: z.number({ message: "Product Prict is required" }).min(1),
-                quantity: z.number({ message: "Product Quantity is required" }).min(1),
+                productName: z.string().min(1, "Product Name is required"),
+                productDesc: z.string().optional(),
+                productPrice: z.number().min(1, "Product Prict is required"),
+                quantity: z.number().min(1, "Product Quantity is required"),
             }
         )
-    ),
-    couponValue: z.number().min(1).max(100),
-    totalPrice: z.number().min(1)
+    ).min(1, "Cart must have at least one product"),
+    couponValue: z.number().min(0).max(100).optional(),
+    totalPrice: z.number().min(1),
+    discountedPrice: z.number().min(0).default(0)
 })
 
 export const UpdateCartZodSchema = cartZodSchema.partial()

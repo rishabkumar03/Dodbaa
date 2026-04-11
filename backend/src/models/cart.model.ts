@@ -1,36 +1,58 @@
 import mongoose, { Schema, Document } from "mongoose";
 interface CartDocument extends Document {
+    userId: mongoose.Types.ObjectId
     productDetails: {
         productId: mongoose.Types.ObjectId
         productName: string,
-        productDesc: string,
-        productPrict: number,
+        productDesc?: string,
+        productPrice: number,
         quantity: number,
     }[]
     couponValue: number
-    totalPrice: number
+    totalPrice: number,
+    discountedPrice: number
 }
 
 const CartDbSchema: Schema<CartDocument> = new Schema({
-    productDetails: [
-        {
-            productId: { type: mongoose.Types.ObjectId, ref: "ProductModel", required: [true, "Product Id is required"] },
-            productName: { type: String, required: [true, "Product Name is required"] },
-            productDesc: { type: String },
-            productPrict: { type: Number, required: [true, "Product Prict is required"] },
-            quantity: { type: Number, required: [true, "Product Quantity is required"] }
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "UserModel",
+        required: [true, "User Id is required"]
+    },
+    productDetails: {
+        type: [
+            {
+                productId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "ProductModel",
+                    required: [true, "Product Id is required"]
+                },
+                productName: { type: String, required: [true, "Product Name is required"] },
+                productDesc: { type: String },
+                productPrice: { type: Number, required: [true, "Product Prict is required"] },
+                quantity: { type: Number, required: [true, "Product Quantity is required"] },
+            }
+        ],
+        validate: {
+            validator: (v: unknown[]) => v.length >= 1,
+            message: "Cart must have at least one product"
         }
-    ],
-    // required: [true, "Product reference is required"]
+    },
     couponValue: {
         type: Number,
-        min: [1, "Coupon value must be at least 1"],
-        max: [100, "Coupon value cannot exceed 100"]
+        min: 0,
+        max: [100, "Coupon value cannot exceed 100"],
+        default: 0
     },
     totalPrice: {
         type: Number,
         required: [true, "Total price is required"],
         min: [1, "Total price must be at least 1"],
+    },
+    discountedPrice: {
+        type: Number,
+        min: 0,
+        default: 0
     },
 
 
