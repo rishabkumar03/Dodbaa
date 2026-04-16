@@ -56,13 +56,11 @@ const registerUser = asyncHandler( async (req, res) => {
 
     // This is the perfect use of validators (here user.validator.ts)
     // safeParse returns a clean result object unlike parse, which throws an ugly error if validation fail 
-
     const parsed = UserZodSchema.safeParse(req.body)
 
     if (!parsed.success) {
 
         // parsed.error?.issues[0]?.message shows the first validation error message when something fails.
-
         throw new ApiError(400, parsed.error?.issues[0]?.message || "Validation failed", [], "")
     }
 
@@ -82,7 +80,6 @@ const registerUser = asyncHandler( async (req, res) => {
         // here, _ = key 
         // value will be filtered out (accessed) when the value is not undefined basically.
         // Object.fromEntries converts the data into object then.
-
         Object.entries(parsed.data).filter(([_, value]) => value !== undefined)
     )
 
@@ -90,7 +87,6 @@ const registerUser = asyncHandler( async (req, res) => {
 
     // password & refreshToken is stored in _ (which is known as throwaway variable)
     // Everything goes inside userResponse by destructuring concept
-
     const { password: _, refreshToken: __, ...userResponse } = createdUser.toObject()
 
     if (!createdUser) {
@@ -115,7 +111,6 @@ const loginUser = asyncHandler(async(req, res) => {
     // send cookie
 
     // Validate req.body with Zod initially
-
     const parsed = LoginZodSchema.safeParse(req.body)
 
     if (!parsed.success) {
@@ -123,11 +118,9 @@ const loginUser = asyncHandler(async(req, res) => {
     }
 
     // Using parsed.data instead of req.body
-
     const { email, phone, password } = parsed.data
 
     // the orConditions will help in including specific fields that exist
-
     const orConditions = []
     if (email) orConditions.push({ email })
     if (phone) orConditions.push({ phone })
@@ -195,7 +188,6 @@ const logoutUser = asyncHandler(async(req, res) => {
 const refreshAccessToken = asyncHandler(async (req, res) => {
 
     // validation for refreshToken before expiry
-
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken 
 
     if (!incomingRefreshToken) {
@@ -278,7 +270,6 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 const getCurrentUser = asyncHandler(async (req, res) => {
 
     // current user details for UI
-
     return res
     .status(200)
     .json(new ApiResponse(200, req.user, "Current user fetched successfully"))
@@ -287,7 +278,6 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 const updateAccountDetails = asyncHandler(async(req, res) => {
     
     // updated account infomation for UI
-
     const { fullname, email, phone } = req.body
 
     if (!fullname || !email || !phone) {
@@ -302,7 +292,6 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
         $or: [{ email }, { phone }],
 
         // $ne refers to 'not equal', basically it excludes the specific user who wants to update his email
-
         _id: { $ne: req.user._id }
     })
 

@@ -60,11 +60,10 @@ const UserDbSchema: Schema<UserDocument> = new Schema({
 
 }, { timestamps: true })
 
-UserDbSchema.pre<UserDocument>("save", async function (this: UserDocument, next: any) {
-    if (!this.isModified("password")) return next()
+UserDbSchema.pre<UserDocument>("save", async function (this: UserDocument) {
+    if (!this.isModified("password")) return
 
     this.password = await bcrypt.hash(this.password, 12)
-    next()
 })
 
 UserDbSchema.methods.isPasswordCorrect = async function (password: string) {
