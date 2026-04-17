@@ -7,6 +7,7 @@ import { couponZodSchema, UpdateCouponZodSchema } from "../validators/coupon.sch
 
 const setCoupoun = asyncHandler(async (req, res) => {
     const { couponName, couponValue, couponExpiry } = req.body;
+    
     if (!couponName || !couponExpiry || !couponValue) {
         throw new ApiError(400, "coupon name, value and expiry is required")
     }

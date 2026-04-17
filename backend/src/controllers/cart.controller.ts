@@ -7,7 +7,7 @@ import { CouponModel } from "../models/coupon.model.js";
 import { cartZodSchema } from "../validators/cart.schema.js";
 
 const createCart = asyncHandler(async (req, res) => {
-    const { productDetails, couponValue } = req.body;
+    const { productDetails, couponCode } = req.body;
 
     // product details validation
     if (!productDetails || !Array.isArray(productDetails)) {
@@ -22,20 +22,28 @@ const createCart = asyncHandler(async (req, res) => {
         throw new ApiError(400, `${res} required got an empty value`)
     }
 
-    let totalPrice = 0
-    let discountedPrice = 0
-    totalPrice += productDetails.reduce((acc, item) => {
-        return item.productPrice * item.quantity
+    const totalPrice = productDetails.reduce((acc, item) => {
+        return acc + (item.productPrice * item.quantity)
     }, 0)
 
-    if (couponValue) {
-        const parsedValue = parseInt(couponValue);
-        if (isNaN(parsedValue)) {
-            throw new ApiError(400, "Invalid price")
+    let discountedPrice = totalPrice
+    let couponValue = 0;
+
+    if (couponCode) {
+        // validate coupon exists and is active
+        const coupon = await CouponModel.findOne({
+            couponName: couponCode.toUpperCase(),
+            isActive: true,
+            couponExpiry: { $gt: new Date() }
+        })
+        if (!coupon) {
+            throw new ApiError(404, "Invalid or expired coupon")
         }
 
-        discountedPrice = totalPrice - (totalPrice * parsedValue) / 100
+        couponValue = coupon.couponValue
+        discountedPrice = totalPrice - (totalPrice * couponValue) / 100
     }
+
     const productObj = {
         userId: req.user?._id,
         productDetails,
@@ -50,7 +58,12 @@ const createCart = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Validation failed", result.error.flatten().fieldErrors)
     }
 
-    const newCartItem = await CartModel.create(result.data)
+    const productData = Object.fromEntries(
+        Object.entries(result.data)
+            .filter(([_, value]) => value !== undefined)
+    )
+
+    const newCartItem = await CartModel.create(productData)
     if (!newCartItem) {
         throw new ApiError(500, "Something went wrong while creating the cart item")
     }
@@ -67,7 +80,8 @@ const createCart = asyncHandler(async (req, res) => {
 
 const updateCart = asyncHandler(async (req, res) => {
     const { cartId } = req.params
-    const { productDetails, quantity, couponValue } = req.body
+    const { productDetails, quantity, couponCode } = req.body
+
     if (!cartId || typeof cartId !== "string") {
         throw new ApiError(400, "Invalid Id format")
     }
@@ -89,37 +103,39 @@ const updateCart = asyncHandler(async (req, res) => {
         throw new ApiError(404, `cart with ${cartId} not found`)
     }
 
-    //--------------------------- revisite this---------------------------------------------
-    if (quantity) {
-        let prevTotal = existingCart.totalPrice
-        let newTotal = 0
-        const parsedQuantity = parseInt(quantity as string)
-        const newMap = new Map(productDetails.map(obj => [obj[obj.productId], obj]))
+    // update quantities for matching products
+    productDetails.forEach((newItem: { productId: string, quantity: number }) => {
+        const existing = existingCart.productDetails.find(
+            p => p.productId.toString() === newItem.productId
+        )
 
-        existingCart.productDetails.map(res => {
-            if (newMap.has(res[res.productName])) {
+        if (existing) {
+            existing.quantity = newItem.quantity
+        }
+    })
 
-            }
-            res.quantity = parsedQuantity,
-                newTotal = existingCart.productDetails.reduce((acc, item) => {
-                    return acc + (item.productPrice * item.quantity)
-                }, 0)
+    // recalculate total price
+    const newTotal = existingCart.productDetails.reduce((acc, item) => {
+        return acc + (item.productPrice * item.quantity)
+    }, 0)
+    existingCart.totalPrice = newTotal
+
+    // save discountedPrice to existingCart
+    if (couponCode) {
+        const coupon = await CouponModel.findOne({
+            couponName: couponCode.toUpperCase(),
+            isActive: true,
+            couponExpiry: { $gt: new Date() }
         })
 
-        existingCart.totalPrice = newTotal === 0 ? prevTotal : newTotal
-    }
-    // ---------------------------------------------------------------------------------------------
+        if (!coupon) {
+            throw new ApiError(404, "Invalid or expired coupon")
+        }
 
-    if (couponValue) {
-        let prevTotal = existingCart.totalPrice
-        let discountedPrice = 0;
-        const parsedCoupon = parseInt(couponValue as string)
-
-        // update new coupon value in DB
-        existingCart.couponValue = parsedCoupon
-
-        // calculate new discounted price
-        discountedPrice = prevTotal - (prevTotal * parsedCoupon) / 100
+        existingCart.couponValue = coupon.couponValue
+        existingCart.discountedPrice = newTotal - (newTotal * coupon.couponValue) / 100
+    } else {
+        existingCart.discountedPrice = newTotal
     }
 
     // save the changes to DB
@@ -166,7 +182,9 @@ const deleteCart = asyncHandler(async (req, res) => {
 })
 
 const getAllCartItems = asyncHandler(async (req, res) => {
-    const result = await CartModel.find({ userId: req.user?._id }).lean()
+    const userId = new mongoose.Types.ObjectId(req.user?._id)
+    
+    const result = await CartModel.find({ userId }).lean()
     if (result.length === 0) {
         throw new ApiError(404, "Cart not found")
     }
