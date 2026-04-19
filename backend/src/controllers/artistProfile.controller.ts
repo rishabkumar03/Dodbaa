@@ -4,7 +4,7 @@ import { UserModel } from "../models/user.model.js";
 import { ArtistApplicationZodSchema, UpdateArtistProfileSchema, RejectionArtistZodSchema } from "../validators/artistProfile.schema.js";
 import { artistApprovedEmail } from "../emails/artistApproved.email.js";
 import { artistRejectedEmail } from "../emails/artistRejected.email.js";
-import { resend } from "../config/resend.js"
+import { getResendClient } from "../config/resend.js"
 import mongoose from "mongoose";
 
 // applyForArtist (any user)
@@ -35,7 +35,23 @@ const applyForArtist = asyncHandler(async(req, res) => {
         throw new ApiError(409, "You have already submitted an application", [], "")
     }
 
-    const parsed = ArtistApplicationZodSchema.safeParse(req.body)
+    const body = {
+        ...req.body,
+        specialization: Array.isArray(req.body.specialization)
+            ? req.body.specialization
+            : req.body.specialization
+
+                // supports single string also which will be wrapped in array
+                ? [req.body.specialization]
+                : [],
+        portfolioURLs: Array.isArray(req.body.portfolioURLs)
+            ? req.body.portfolioURLs
+            : req.body.portfolioURLs
+                ? [req.body.portfolioURLs]
+                : undefined
+    }
+
+    const parsed = ArtistApplicationZodSchema.safeParse(body)
 
     if (!parsed.success) {
         throw new ApiError(400, parsed.error.issues[0]?.message || "Validation failed", [], "")
@@ -49,6 +65,20 @@ const applyForArtist = asyncHandler(async(req, res) => {
     if (existingDisplayName) {
         throw new ApiError(409, "Artist with same display name already exists", [], "")
     }
+    
+    const files = req.files as { [fieldName: string]: Express.Multer.File[] }
+    const profileImage = files?.profileImage?.[0]
+    // console.log(`This is my files from which profileImage is referenced: ${files}`)
+
+    if (!profileImage) {
+        throw new ApiError(400, "Profile image is required", [], "")
+    }
+
+    const uploaded = await uploadOnCloudinary(profileImage.path)
+
+    if (!uploaded) {
+        throw new ApiError(500, "Image upload failed", [], "")
+    }
 
     const filteredData = Object.fromEntries(
         Object.entries(parsed.data).filter(([_, value]) => value !== undefined)
@@ -58,7 +88,8 @@ const applyForArtist = asyncHandler(async(req, res) => {
     const artist = await ArtistModel.create({ 
         ...filteredData,
         userId: req.user._id,
-        status: "pending"
+        status: "pending",
+        profileImage: uploaded.secure_url
     })
 
     const { ...artistResponse } = artist.toObject()
@@ -112,6 +143,8 @@ const approveArtist = asyncHandler(async(req, res) => {
     if (!userToArtist) {
         throw new ApiError(404, "User not found", [], "")
     }
+
+    const resend = getResendClient();
 
     // Sending the approved email notification
     await resend.emails.send({
@@ -172,6 +205,8 @@ const rejectArtist = asyncHandler(async(req, res) => {
         throw new ApiError(404, "User not found", [], "")
     }
 
+    const resend = getResendClient();
+    
     // Send email notification for rejection
     await resend.emails.send({
         from: process.env.SMTP_FROM as string,
@@ -257,9 +292,10 @@ const getAllApplications = asyncHandler(async (req, res) => {
 
     pipeline.push({
         $lookup: {
-            from: "usermodels",     // MongoDB collection name
-            foreignField: "_id",    // field in ArtistModel
-            as: "userDetails",      // field in UserModel
+            from: "users", // MongoDB collection name for UserModel
+            localField: "userId", // field in ArtistModel
+            foreignField: "_id", // field in UserModel
+            as: "userDetails",
             pipeline: [
                 {
                     $project: {
@@ -269,12 +305,12 @@ const getAllApplications = asyncHandler(async (req, res) => {
                     }
                 }
             ]
-        }, 
+        },
     },
     {
         $addFields: {
             owner: {
-                $first: "$userDetails"   
+                $first: "$userDetails"
             }
         }
     },
@@ -420,7 +456,7 @@ const getArtistProfile = asyncHandler(async (req, res) => {
 
 const getAllArtists = asyncHandler(async (req, res) => {
 
-    const { page = 1, limit = 10, sortBy = "desc", speicalization } = req.query
+    const { page = 1, limit = 10, sortBy = "desc", specialization } = req.query
 
     const pipeline: mongoose.PipelineStage[] = []
 
@@ -429,7 +465,7 @@ const getAllArtists = asyncHandler(async (req, res) => {
         $match: {
             isActive: true,
             status: "approved",
-            ...(speicalization && { specialization: { $in: [speicalization] } })
+            ...(specialization && { specialization: { $in: [specialization] } })
         }
     })
 
@@ -439,7 +475,7 @@ const getAllArtists = asyncHandler(async (req, res) => {
         $project: {
             displayName: 1,
             bio: 1,
-            speicalization: 1,
+            specialization: 1,
             profileImage: 1,
             isVerified: 1,
             totalSales: 1,
