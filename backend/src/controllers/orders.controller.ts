@@ -124,9 +124,9 @@ const deleteOrder = asyncHandler(async (req, res) => {
     }
 
     // delete orderItems
-    await OrderItemModel.deleteMany(existingOrder._id)
+    await OrderItemModel.deleteMany({ orderId: existingOrder._id })
 
-    const deletedOrder = await OrderModel.findOneAndDelete(existingOrder._id);
+    const deletedOrder = await OrderModel.findByIdAndDelete(existingOrder._id);
     if (!deletedOrder) {
         throw new ApiError(500, "Something went wrong while deleting the order")
     }
@@ -186,12 +186,12 @@ const getUserOrder = asyncHandler(async (req, res) => {
         throw new ApiError(400, "sortBy must be 'asc' or 'desc'", [], "")
     }
 
-    const pipeline : mongoose.PipelineStage[] = []
+    const pipeline: mongoose.PipelineStage[] = []
 
     pipeline.push({
         $match: { userId: new mongoose.Types.ObjectId(req.user._id) }
     })
-    
+
     pipeline.push({
         $lookup: {
             from: "productModels",
@@ -227,16 +227,16 @@ const getUserOrder = asyncHandler(async (req, res) => {
             ]
         }
     },
-    {
-        $addFields: {
-            orderItem: {
-                $first: "$orderItemDetails"
+        {
+            $addFields: {
+                orderItem: {
+                    $first: "$orderItemDetails"
+                }
             }
-        }
-    },
-    {
-        $unset: "orderItemDetails"
-    })
+        },
+        {
+            $unset: "orderItemDetails"
+        })
 
     const sortOrder = sortBy === "asc" ? 1 : -1
 
@@ -253,29 +253,29 @@ const getUserOrder = asyncHandler(async (req, res) => {
     pipeline.push({ $skip: skip })
     pipeline.push({ $limit: limitNum })
 
-    const [ orders, countResult ] = await Promise.all([
+    const [orders, countResult] = await Promise.all([
         OrderModel.aggregate(pipeline),
         OrderModel.aggregate(countPipeline)
     ])
 
     const total = countResult[0]?.total || 0
-    const totalPages = Math.ceil( total / limitNum )
+    const totalPages = Math.ceil(total / limitNum)
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, {
-            orders,
-            pagination: {
-                currentPage: pageNum,
-                totalPages,
-                total,
-                hasPrevPage: pageNum > 1,
-                hasNextPage: pageNum < totalPages
-            }
-        },
-        "Orders fetched successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, {
+                orders,
+                pagination: {
+                    currentPage: pageNum,
+                    totalPages,
+                    total,
+                    hasPrevPage: pageNum > 1,
+                    hasNextPage: pageNum < totalPages
+                }
+            },
+                "Orders fetched successfully")
+        )
 })
 
 export {

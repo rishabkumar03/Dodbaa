@@ -10,9 +10,9 @@ export interface UserDocument extends Document {
     password: string;
     phone: string;
     role: "user" | "artist" | "admin";
-    refreshToken: string;
-    resetPasswordOTP?: string;
-    resetPasswordOTPExpiry?: Date;
+    refreshToken: string | null;
+    resetPasswordOTP?: string | null;
+    resetPasswordOTPExpiry?: Date | null;
 
     isPasswordCorrect(password: string): Promise<boolean>;
     generateAccessToken(): string;
@@ -52,11 +52,8 @@ const UserDbSchema: Schema<UserDocument> = new Schema({
         type: String,
         default: null
     },
-    resetPasswordOTP: {
-        type: String,
-        index: true
-    },
-    resetPasswordOTPExpiry: Date,
+    resetPasswordOTP: { type: String, default: null, index: true },
+    resetPasswordOTPExpiry: { type: Date, default: null }
 
 }, { timestamps: true })
 
