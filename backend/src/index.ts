@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
+dotenv.config();
+
 import connectdb from "./db/connectdb.js";
 import app from "./app.js";
-
-dotenv.config();
 
 const startServer = async () => {
     try {

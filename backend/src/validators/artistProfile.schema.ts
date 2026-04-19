@@ -6,6 +6,10 @@ const ArtistApplicationZodSchema = z.object({
         .trim()
         .min(2, "Display name must be at least 2 characters")
         .max(50, "Display name cannot exceed 50 characters"),
+    profileImage: z
+        .string()
+        .max(1)
+        .optional(),
     bio: z
         .string()
         .trim()
@@ -25,14 +29,6 @@ const ArtistApplicationZodSchema = z.object({
             .url("Each porfolio URL must be valid")
         )
         .max(10, "Max 10 portfolio URLs allowed")
-        .optional(),
-    socialLinks: z
-        .array(
-            z
-            .string()
-            .url("Each social link must be valid")
-        )
-        .max(5, "Max 5 social links allowed")
         .optional()
 })
 

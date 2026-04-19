@@ -1,25 +1,41 @@
 import { v2 as cloudinary } from "cloudinary"
-import { log } from "console"
 import fs from "fs"
 
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-    cloud_key: process.env.CLOUDINARY_API_KEY!,
-    cloud_secret: process.env.CLOUDINARY_API_SECRET!
-})
+const getCloudinaryClient = () => {
+    const cloud_name = process.env.CLOUDINARY_CLOUD_NAME
+    const api_key = process.env.CLOUDINARY_API_KEY
+    const api_secret = process.env.CLOUDINARY_API_SECRET
+
+    if (!cloud_name || !api_key || !api_secret) {
+        throw new Error("Cloudinary credentials are missing in .env")
+    }
+
+    cloudinary.config({ cloud_name, api_key, api_secret })
+    return cloudinary
+}
 
 const uploadOnCloudinary = async (localFilePath: string) => {
     try {
         if (!localFilePath) {
             return null
         }
-        const response = await cloudinary.uploader.upload(localFilePath, {
+
+        const client = getCloudinaryClient()
+
+        const response = await client.uploader.upload(localFilePath, {
             resource_type: "auto"
         })
-        fs.unlinkSync
-        return response
-    } catch (error) {
+
         fs.unlinkSync(localFilePath)
+        return response
+
+    } catch (error) {
+
+        console.error("Cloudinary upload error: ", error)
+        
+        if (fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath)
+        }
         return null
     }
 }
@@ -29,21 +45,18 @@ const deleteFromCloudinary = async (publicId: string) => {
         if (!publicId) {
             return null
         }
-        const response = await cloudinary.uploader.destroy(publicId, {
+
+        const client = getCloudinaryClient()
+
+        const response = await client.uploader.destroy(publicId, {
             resource_type: "auto"
         })
-
-        if (!response) {
-            console.log("Error while deleting contents on cloudinary");
-            return null
-        }
-
         console.log("Contents deleted successfully", response);
+
     } catch (error) {
         console.log("Cloudinary delete error", error);
-
+    
     }
 }
 
-export { uploadOnCloudinary }
-export { deleteFromCloudinary }
+export { uploadOnCloudinary, deleteFromCloudinary }

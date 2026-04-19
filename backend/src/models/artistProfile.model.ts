@@ -12,7 +12,6 @@ interface ArtistDocument extends Document {
     isActive: boolean
     bio: string
     portfolioURLs: string[]
-    socialLinks: string[]
 }
 
 const ArtistDbSchema: Schema<ArtistDocument> = new Schema({
@@ -66,12 +65,6 @@ const ArtistDbSchema: Schema<ArtistDocument> = new Schema({
         {
             type: String,
             trim: true,
-        }
-    ],
-    socialLinks: [
-        {
-            type: String,
-            trim: true
         }
     ]
 }, { timestamps: true })
