@@ -1,4 +1,4 @@
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 import { ProductModel } from "../models/product.model.js";
 import { ProductZodSchema, UpdateProductZodSchema } from "../validators/product.schema.js";
 import {
