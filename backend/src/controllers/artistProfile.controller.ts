@@ -220,10 +220,10 @@ const rejectArtist = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200, rejectedArtist, "Artist application rejected"))
 })
 
-// verifyArtist (admin only)
+// specialArtist (admin only)
 // -> sets isVerified : true
 
-const verifyArtist = asyncHandler(async (req, res) => {
+const specialArtist = asyncHandler(async (req, res) => {
 
     const { artistId } = req.params;
 
@@ -562,7 +562,7 @@ export {
     applyForArtist,
     approveArtist,
     rejectArtist,
-    verifyArtist,
+    specialArtist,
     getAllApplications,
     updateArtistProfile,
     getArtistProfile,

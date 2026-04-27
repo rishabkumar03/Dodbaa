@@ -3,7 +3,7 @@ import {
     applyForArtist,
     approveArtist,
     rejectArtist,
-    verifyArtist,
+    specialArtist,
     getAllApplications,
     updateArtistProfile,
     getArtistProfile,
@@ -11,7 +11,7 @@ import {
     deactivateArtist    
 } from "../controllers/artistProfile.controller.js"
 import { upload } from "../middlewares/multer.middleware.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyAdmin, verifyArtist, verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router()
 
@@ -29,30 +29,34 @@ router
 )
 
 router
-.route("/aa/:artistId")
+.route("/approve/:artistId")
 .patch(
     verifyJWT,
+    verifyAdmin,
     approveArtist
 )
 
 router
-.route("/ra/:artistId")
+.route("/reject/:artistId")
 .patch(
     verifyJWT,
+    verifyAdmin,
     rejectArtist
 )
 
 router
-.route("/va/:artistId")
+.route("/special/:artistId")
 .patch(
     verifyJWT,
-    verifyArtist
+    verifyAdmin,
+    specialArtist
 )
 
 router
 .route("/applications")
 .get(
     verifyJWT,
+    verifyAdmin,
     getAllApplications
 )
 
@@ -60,27 +64,27 @@ router
 .route("/update/:artistId")
 .patch(
     verifyJWT,
+    verifyArtist,
     updateArtistProfile
 )
 
 router
-.route("/a/:artistId")
+.route("/:artistId")
 .get(
-    verifyJWT,
-    getArtistProfile    
+    getArtistProfile     
 )
 
 router
-.route("/all-artists")
+.route("/")
 .get(
-    verifyJWT,
     getAllArtists
 )
 
 router
-.route("/d/:artistId")
-.post(
+.route("/deactivate/:artistId")
+.patch(
     verifyJWT,
+    verifyAdmin,
     deactivateArtist
 )
 
