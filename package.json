@@ -5,6 +5,7 @@
     "tsx": "^4.21.0"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
     "crypto": "^1.0.1",
     "lite-server": "^2.6.1",
     "resend": "^6.12.0",
