@@ -24,7 +24,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       </div>
 
       {/* Footer Links */}
-      <div className="max-w-screen-xl mx-auto px-4 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-2 sm:grid-cols-4 gap-6">
         <div>
           <p className="font-semibold text-stone-900 mb-3 font-serif">Dodbaa.com</p>
           <div className="flex gap-3 text-stone-500">

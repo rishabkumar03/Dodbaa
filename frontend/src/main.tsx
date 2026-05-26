@@ -1,18 +1,19 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-import { store } from './store/index.ts'
-import { BrowserRouter, Route, Router, Routes } from 'react-router-dom'
+import { store } from './store'
+import { BrowserRouter } from 'react-router-dom'
+
+// @ts-ignore: side-effect import of CSS file without type declarations
 import './index.css'
-import App from './App.tsx'
-import HomePage from './pages/HomePage.tsx'
+import App from './App'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Provider store={store} >
+    <Provider store={store}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
     </Provider>
-  </StrictMode>,
+  </StrictMode>
 )
