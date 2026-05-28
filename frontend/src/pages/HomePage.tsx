@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { MOCK_PRODUCTS, MOCK_ARTISTS, MOCK_FEEDBACKS, CATEGORIES } from '../utils/mockData';
-import ProductCard from '../components/ProductCard';
 import Footer from '../components/Footer';
 
 interface HomePageProps {
@@ -36,12 +35,11 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const next = () => setSlide(s => (s + 1) % spotlights.length);
 
   const featuredProducts = MOCK_PRODUCTS.slice(0, 3);
-  const artistProducts = MOCK_PRODUCTS.slice(0, 3);
 
   return (
     <main>
       {/* Hero */}
-      <section className="max-w-screen-xl mx-auto px-4 pt-8 pb-4">
+      <section className="max-w-7xl mx-auto px-4 pt-8 pb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           <div>
             <h1 className="text-3xl sm:text-4xl font-serif font-semibold text-stone-900 leading-tight mb-4">
@@ -69,7 +67,7 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* Categories */}
-      <section className="max-w-screen-xl mx-auto px-4 py-4">
+      <section className="max-w-7xl mx-auto px-4 py-4">
         <h2 className="text-lg font-semibold text-stone-900 mb-3">Categories</h2>
         <div className="flex gap-3 flex-wrap">
           {CATEGORIES.map(cat => (
@@ -85,15 +83,15 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* Spotlight Slider */}
-      <section className="max-w-screen-xl mx-auto px-4 py-6">
+      <section className="max-w-7xl mx-auto px-4 py-6">
         <h2 className="text-lg font-semibold text-stone-900 mb-3">Spotlights</h2>
-        <div className="relative rounded-2xl overflow-hidden bg-stone-100 aspect-[16/7]">
+        <div className="relative rounded-2xl overflow-hidden bg-stone-100 aspect-16/7">
           <img
             src={spotlights[slide].imageUrl}
             alt={spotlights[slide].title}
             className="w-full h-full object-cover transition-opacity duration-500"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
           <div className="absolute bottom-6 left-6 text-white">
             <h3 className="text-2xl font-serif font-bold">{spotlights[slide].title}</h3>
             <p className="text-sm opacity-80">{spotlights[slide].subtitle}</p>
@@ -113,7 +111,7 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* Meet Our Collections */}
-      <section className="max-w-screen-xl mx-auto px-4 py-4">
+      <section className="max-w-7xl mx-auto px-4 py-4">
         <h2 className="text-lg font-semibold text-stone-900 mb-4">Meet Our Collections</h2>
         <div className="grid grid-cols-3 gap-3">
           {featuredProducts.map(p => (
@@ -137,7 +135,7 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* Meet Our Artists */}
-      <section className="max-w-screen-xl mx-auto px-4 py-6">
+      <section className="max-w-7xl mx-auto px-4 py-6">
         <h2 className="text-lg font-semibold text-stone-900 mb-4">Meet Our Artists</h2>
         <div className="grid grid-cols-3 gap-4">
           {MOCK_ARTISTS.map(artist => (
@@ -157,7 +155,7 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* Feedbacks */}
-      <section className="max-w-screen-xl mx-auto px-4 py-4">
+      <section className="max-w-7xl mx-auto px-4 py-4">
         <h2 className="text-lg font-semibold text-stone-900 mb-4">Feedbacks</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {MOCK_FEEDBACKS.map(fb => (

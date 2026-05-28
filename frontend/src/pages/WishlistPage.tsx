@@ -14,7 +14,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigate }) => {
 
   return (
     <main>
-      <div className="max-w-screen-xl mx-auto px-4 pt-8">
+      <div className="max-w-7xl mx-auto px-4 pt-8">
         <h1 className="text-2xl font-serif font-semibold text-stone-900 mb-6 flex items-center gap-2">
           <Heart size={20} className="text-red-500" fill="currentColor" />
           Wishlist
@@ -33,7 +33,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigate }) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {wishlistItems.map(({ product }) => (
+            {wishlistItems.map(({ product }: { product: any }) => (
               <div key={product.id} className="flex gap-4 bg-white rounded-2xl border border-stone-100 p-4 shadow-sm">
                 <div
                   className="w-20 h-20 rounded-xl overflow-hidden bg-stone-100 shrink-0 cursor-pointer"

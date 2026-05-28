@@ -8,16 +8,21 @@ interface CartPageProps {
   onNavigate: (page: string, id?: string) => void;
 }
 
+interface CartItem {
+  product: any;
+  quantity: number;
+}
+
 const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
   const dispatch = useAppDispatch();
-  const cartItems = useAppSelector(s => s.cart.items);
+  const cartItems = useAppSelector(s => s.cart.items as CartItem[]);
   const total = cartItems.reduce((acc, i) => acc + i.product.price * i.quantity, 0);
 
   const isEmpty = cartItems.length === 0;
 
   return (
     <main>
-      <div className="max-w-screen-xl mx-auto px-4 pt-8">
+      <div className="max-w-7xl mx-auto px-4 pt-8">
         {isEmpty ? (
           <div className="text-center py-16">
             <div className="w-24 h-24 mx-auto mb-6 flex items-center justify-center">

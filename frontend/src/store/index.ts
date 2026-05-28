@@ -1,9 +1,9 @@
-import { configureStore, createSlice } from '@reduxjs/toolkit';
+import * as toolkit from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { CartItem, WishlistItem, Product, User } from '../types';
 
 // ─── Cart Slice ─────────────────────────────────────────────────────────────
-const cartSlice = createSlice({
+const cartSlice = toolkit.createSlice({
   name: 'cart',
   initialState: { items: [] as CartItem[] },
   reducers: {
@@ -29,7 +29,7 @@ const cartSlice = createSlice({
 });
 
 // ─── Wishlist Slice ──────────────────────────────────────────────────────────
-const wishlistSlice = createSlice({
+const wishlistSlice = toolkit.createSlice({
   name: 'wishlist',
   initialState: { items: [] as WishlistItem[] },
   reducers: {
@@ -45,7 +45,7 @@ const wishlistSlice = createSlice({
 });
 
 // ─── UI Slice ────────────────────────────────────────────────────────────────
-const uiSlice = createSlice({
+const uiSlice = toolkit.createSlice({
   name: 'ui',
   initialState: { menuOpen: false, cookieBannerDismissed: false },
   reducers: {
@@ -56,6 +56,8 @@ const uiSlice = createSlice({
 });
 
 // ─── Auth Slice ──────────────────────────────────────────────────────────────
+type AuthState = { user: User | null; isLoggedIn: boolean };
+
 const mockUser: User = {
   id: '1',
   name: 'Rishab Kumar',
@@ -67,9 +69,9 @@ const mockUser: User = {
   contacts: ['+91 98765 43210', '+91 87654 32109'],
 };
 
-const authSlice = createSlice({
+const authSlice = toolkit.createSlice({
   name: 'auth',
-  initialState: { user: mockUser as User | null, isLoggedIn: true },
+  initialState: { user: mockUser, isLoggedIn: true } as AuthState,
   reducers: {
     login(state, action: PayloadAction<User>) { state.user = action.payload; state.isLoggedIn = true; },
     logout(state) { state.user = null; state.isLoggedIn = false; },
@@ -77,7 +79,7 @@ const authSlice = createSlice({
 });
 
 // ─── Store ───────────────────────────────────────────────────────────────────
-export const store = configureStore({
+export const store = toolkit.configureStore({
   reducer: {
     cart: cartSlice.reducer,
     wishlist: wishlistSlice.reducer,

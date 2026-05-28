@@ -12,7 +12,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
 
   if (!user) {
     return (
-      <div className="max-w-screen-xl mx-auto px-4 pt-16 text-center">
+      <div className="max-w-7xl mx-auto px-4 pt-16 text-center">
         <p className="text-stone-500 mb-4">Please log in to view your profile.</p>
         <button className="bg-stone-900 text-white px-6 py-2.5 rounded-full text-sm font-medium">
           Log In
@@ -23,7 +23,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
 
   return (
     <main>
-      <div className="max-w-screen-xl mx-auto px-4 pt-8 pb-8">
+      <div className="max-w-7xl mx-auto px-4 pt-8 pb-8">
         {/* Avatar + Name */}
         <div className="flex items-start gap-5 mb-8">
           <div className="w-20 h-20 rounded-full bg-stone-200 shrink-0 overflow-hidden flex items-center justify-center">
@@ -41,7 +41,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
         <div className="mb-6">
           <h2 className="text-sm font-semibold text-stone-700 uppercase tracking-wider mb-3">Addresses</h2>
           <div className="space-y-2">
-            {user.addresses.map(addr => (
+            {user.addresses.map((addr: any) => (
               <div key={addr.id} className="flex items-start gap-2.5 p-3 bg-stone-50 rounded-xl border border-stone-100">
                 <MapPin size={16} className="text-stone-500 mt-0.5 shrink-0" />
                 <div>
@@ -61,7 +61,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
         <div className="mb-8">
           <h2 className="text-sm font-semibold text-stone-700 uppercase tracking-wider mb-3">Contacts</h2>
           <div className="space-y-2">
-            {user.contacts.map((contact, i) => (
+            {user.contacts.map((contact: string, i: number) => (
               <div key={i} className="flex items-center gap-2.5 p-3 bg-stone-50 rounded-xl border border-stone-100">
                 <Phone size={16} className="text-stone-500 shrink-0" />
                 <p className="text-sm text-stone-700">{contact}</p>

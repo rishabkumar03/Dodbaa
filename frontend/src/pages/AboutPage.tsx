@@ -18,7 +18,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         />
       </div>
 
-      <div className="max-w-screen-xl mx-auto px-4 pt-8 pb-8">
+      <div className="max-w-7xl mx-auto px-4 pt-8 pb-8">
         {/* About section */}
         <div className="mb-10">
           <h1 className="text-2xl font-serif font-bold text-stone-900 mb-1">About Dodbaa</h1>

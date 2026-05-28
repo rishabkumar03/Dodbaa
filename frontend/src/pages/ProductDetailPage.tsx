@@ -13,7 +13,7 @@ interface ProductDetailPageProps {
 
 const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, onNavigate }) => {
   const dispatch = useAppDispatch();
-  const wishlistIds = useAppSelector(s => s.wishlist.items.map(i => i.product.id));
+  const wishlistIds = useAppSelector(s => s.wishlist.items.map((i: { product: { id: string } }) => i.product.id));
 
   const product = MOCK_PRODUCTS.find(p => p.id === productId);
   if (!product) return <div className="p-8 text-stone-500">Product not found.</div>;
@@ -24,7 +24,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, onNavi
 
   return (
     <main>
-      <div className="max-w-screen-xl mx-auto px-4 pt-6">
+      <div className="max-w-7xl mx-auto px-4 pt-6">
         <button
           onClick={() => onNavigate('products')}
           className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-900 transition-colors mb-6"
@@ -88,7 +88,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, onNavi
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-stone-900 mb-4">More Like That</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {MOCK_PRODUCTS.filter(p => p.id !== product.id).slice(0, 6).map(p => (
+            {related.map(p => (
               <ProductCard
                 key={p.id}
                 product={p}

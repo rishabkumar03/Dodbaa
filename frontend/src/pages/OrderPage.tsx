@@ -7,20 +7,31 @@ interface OrderPageProps {
   onNavigate: (page: string, id?: string) => void;
 }
 
+interface CartItem {
+  product: {
+    id: string;
+    price: number;
+    imageUrl: string;
+    name: string;
+    subheading: string;
+  };
+  quantity: number;
+}
+
 const STEPS = ['Shipping', 'Billing', 'Order Summary'];
 
 const OrderPage: React.FC<OrderPageProps> = ({ onNavigate }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const isLoggedIn = useAppSelector(s => s.auth.isLoggedIn);
   const user = useAppSelector(s => s.auth.user);
-  const cartItems = useAppSelector(s => s.cart.items);
-  const total = cartItems.reduce((acc, i) => acc + i.product.price * i.quantity, 0);
+  const cartItems = useAppSelector(s => s.cart.items) as CartItem[];
+  const total = cartItems.reduce((acc: number, i: CartItem) => acc + i.product.price * i.quantity, 0);
   const [selectedAddress, setSelectedAddress] = useState(0);
   const [selectedContact, setSelectedContact] = useState(0);
 
   return (
     <main>
-      <div className="max-w-screen-xl mx-auto px-4 pt-6 pb-8">
+      <div className="max-w-7xl mx-auto px-4 pt-6 pb-8">
         {/* Step indicator */}
         <div className="flex items-center mb-8">
           {STEPS.map((step, i) => (
@@ -62,7 +73,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onNavigate }) => {
                       <div className="w-full">
                         <p className="font-medium mb-2">Choose the address.</p>
                         <div className="space-y-2">
-                          {user.addresses.map((addr, i) => (
+                          {user.addresses.map((addr: { id: string; label: string; full: string }, i: number) => (
                             <label key={addr.id} className="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all"
                               style={{ borderColor: selectedAddress === i ? '#1c1917' : '#e7e5e4' }}
                             >
@@ -87,7 +98,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onNavigate }) => {
                       <div className="w-full">
                         <p className="font-medium mb-2">Choose a contact.</p>
                         <div className="space-y-2">
-                          {user.contacts.map((c, i) => (
+                          {user.contacts.map((c: string, i: number) => (
                             <label key={i} className="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all"
                               style={{ borderColor: selectedContact === i ? '#1c1917' : '#e7e5e4' }}
                             >

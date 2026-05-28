@@ -26,7 +26,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigate, initialCategory
 
   return (
     <main>
-      <section className="max-w-screen-xl mx-auto px-4 pt-8 pb-4">
+      <section className="max-w-7xl mx-auto px-4 pt-8 pb-4">
         {/* Header with decorative element */}
         <div className="flex justify-between items-start mb-2">
           <div>

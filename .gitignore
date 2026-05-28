@@ -85,6 +85,7 @@ web_modules/
 **/.env
 .env.*
 **/.env.*
+**/.env.example
 !**/.env.example
 .env.development.local
 .env.test.local
