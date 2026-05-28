@@ -1,0 +1,76 @@
+name: Dodbaa CI/CD
+
+on: 
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  
+  # ------- BACKEND CI -------
+  backend-check:
+    name: Backend Build & Type Check
+    runs-on: ubuntu-latest
+
+    # Only run if backend files changed
+    # No point running backend CI if you only changed frontend!
+    defaults:
+      run:
+
+        # All commands run inside backend/
+        working-directory: ./backend 
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with: 
+          node-version: '22'
+          cache: 'npm'
+
+          # backend's lockfile
+          cache-dependency-path: backend/package-lock.json
+      
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npm run lint
+
+      - name: Build backend
+        run: npm run build
+
+  # ------- BACKEND CD - Deploy to Render -------
+  deploy-backend: 
+    name: Deploy Backend to Render
+    runs-on: ubuntu-latest
+
+    # Only runs if backend-check passes
+    needs: backend-check
+
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps: 
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+
+  # ------- FRONTEND CI -------
+  frontend-check:
+    name: Frontend Build & Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: 
+          code-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build

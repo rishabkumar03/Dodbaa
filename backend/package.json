@@ -17,7 +17,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
-  "name": "backend",
+  "name": "dodbaa-backend",
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
@@ -61,7 +61,10 @@
     "zod": "^4.3.5"
   },
   "scripts": {
-    "dev": "nodemon --exec tsx watch src/index.ts"
+    "dev": "nodemon --exec tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

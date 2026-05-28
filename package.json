@@ -1,4 +1,15 @@
 {
+  "name": "dodbaa",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint"
+  },
   "devDependencies": {
     "@types/multer": "^2.0.0",
     "prettier": "^3.8.0",
