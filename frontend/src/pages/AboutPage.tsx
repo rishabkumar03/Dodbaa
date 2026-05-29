@@ -1,12 +1,10 @@
 import React from 'react';
 import { MOCK_ARTISTS } from '../utils/mockData';
 import Footer from '../components/Footer';
-
-interface AboutPageProps {
-  onNavigate: (page: string, id?: string) => void;
-}
-
-const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
+import { useNavigate } from 'react-router-dom';
+  
+const AboutPage: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <main>
       {/* Hero image */}
@@ -76,7 +74,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      <Footer onNavigate={onNavigate} />
+      <Footer />
     </main>
   );
 };

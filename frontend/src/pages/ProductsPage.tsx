@@ -3,15 +3,14 @@ import { MOCK_PRODUCTS, CATEGORIES } from '../utils/mockData';
 import type { Category } from '../types';
 import ProductCard from '../components/ProductCard';
 import Footer from '../components/Footer';
+import { useNavigate, useLocation } from 'react-router-dom';  
 
-interface ProductsPageProps {
-  onNavigate: (page: string, id?: string) => void;
-  initialCategory?: string;
-}
-
-const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigate, initialCategory }) => {
+const ProductsPage: React.FC = () => {
+  const navigate = useNavigate()
+  const location = useLocation()  
+  const initialCategory = (location.state as { category?: Category })?.category  
   const [activeCategory, setActiveCategory] = useState<Category | 'All'>(
-    (initialCategory as Category) || 'All'
+    initialCategory || 'All'  
   );
 
   const filtered = useMemo(() => {
@@ -75,7 +74,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigate, initialCategory
             <div key={product.id} className={`break-inside-avoid ${i % 3 === 1 ? 'mt-6' : ''}`}>
               <ProductCard
                 product={product}
-                onClick={() => onNavigate('product', product.id)}
+                onClick={() => navigate(`/product/${product.id}`)}  
               />
             </div>
           ))}
@@ -89,7 +88,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigate, initialCategory
               {MOCK_PRODUCTS.filter(p => p.category !== activeCategory).slice(0, 4).map(p => (
                 <div
                   key={p.id}
-                  onClick={() => onNavigate('product', p.id)}
+                  onClick={() => navigate(`/product/${p.id}`)}  
                   className="cursor-pointer group"
                 >
                   <div className="aspect-square rounded-xl overflow-hidden bg-stone-100 mb-2">
@@ -108,7 +107,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({ onNavigate, initialCategory
         )}
       </section>
 
-      <Footer onNavigate={onNavigate} />
+      <Footer />
     </main>
   );
 };

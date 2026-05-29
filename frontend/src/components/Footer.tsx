@@ -1,12 +1,9 @@
 import React from 'react';
 import { Instagram, Facebook, Youtube, Twitter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface FooterProps {
-  onNavigate?: (page: string) => void;
-}
-
-const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
-  const nav = (page: string) => onNavigate?.(page);
+const Footer = () => {
+  const navigate = useNavigate();
 
   return (
     <footer className="bg-white border-t border-stone-200 mt-16">
@@ -60,7 +57,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             {['About Us', 'Careers'].map(l => (
               <li key={l}>
                 <button
-                  onClick={() => l === 'About Us' && nav('about')}
+                  onClick={() => l === 'About Us' && navigate('/about')}
                   className="text-xs text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   {l}

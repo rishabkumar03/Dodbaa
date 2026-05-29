@@ -5,14 +5,12 @@ import { useAppDispatch, useAppSelector } from '../hooks/useRedux';
 import { addToCart, addToWishlist, removeFromWishlist } from '../store';
 import ProductCard from '../components/ProductCard';
 import Footer from '../components/Footer';
+import { useNavigate, useParams } from 'react-router-dom';  
 
-interface ProductDetailPageProps {
-  productId: string;
-  onNavigate: (page: string, id?: string) => void;
-}
-
-const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, onNavigate }) => {
+const ProductDetailPage: React.FC = () => {
+  const navigate = useNavigate()
   const dispatch = useAppDispatch();
+  const { productId } = useParams<{ productId: string }>()  
   const wishlistIds = useAppSelector(s => s.wishlist.items.map((i: { product: { id: string } }) => i.product.id));
 
   const product = MOCK_PRODUCTS.find(p => p.id === productId);
@@ -26,7 +24,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, onNavi
     <main>
       <div className="max-w-7xl mx-auto px-4 pt-6">
         <button
-          onClick={() => onNavigate('products')}
+          onClick={() => navigate('/products')}
           className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-900 transition-colors mb-6"
         >
           <ArrowLeft size={14} /> Back to products
@@ -92,14 +90,14 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, onNavi
               <ProductCard
                 key={p.id}
                 product={p}
-                onClick={() => onNavigate('product', p.id)}
+                onClick={() => navigate(`/product/${p.id}`)}  
               />
             ))}
           </div>
         </section>
       </div>
 
-      <Footer onNavigate={onNavigate} />
+      <Footer />
     </main>
   );
 };

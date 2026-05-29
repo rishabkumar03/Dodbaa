@@ -3,17 +3,15 @@ import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/useRedux';
 import { removeFromCart, updateQuantity, addToWishlist } from '../store';
 import Footer from '../components/Footer';
-
-interface CartPageProps {
-  onNavigate: (page: string, id?: string) => void;
-}
+import { useNavigate } from 'react-router-dom';
 
 interface CartItem {
   product: any;
   quantity: number;
 }
 
-const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
+const CartPage: React.FC = () => {
+  const navigate = useNavigate()
   const dispatch = useAppDispatch();
   const cartItems = useAppSelector(s => s.cart.items as CartItem[]);
   const total = cartItems.reduce((acc, i) => acc + i.product.price * i.quantity, 0);
@@ -36,9 +34,9 @@ const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
                 <path d="M12 36l4-4 4 4M60 36l4-4 4 4" stroke="#1c1917" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </div>
-            <h1 className="text-xl font-serif font-semibold text-stone-900 mb-2">Your Cart is currently empty :(</h1>
+            <h1 className="text-xl font-serif font-semibold text-stone-900 mb-2">Your Cart is currently empty : </h1>
             <button
-              onClick={() => onNavigate('products')}
+              onClick={() => navigate('/products')}
               className="mt-4 bg-stone-900 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-stone-700 transition-colors"
             >
               Browse Products
@@ -65,7 +63,7 @@ const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
                     <p className="text-xs text-stone-500 mb-3 line-clamp-2">{product.description}</p>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => onNavigate('order')}
+                        onClick={() => navigate('/order')}
                         className="bg-stone-900 text-white text-xs px-3 py-1.5 rounded-full hover:bg-stone-700 transition-colors"
                       >
                         Order Now
@@ -120,7 +118,7 @@ const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
               <p className="text-xl font-bold text-stone-900">${total.toFixed(2)}</p>
             </div>
             <button
-              onClick={() => onNavigate('order')}
+              onClick={() => navigate('/order')}
               className="bg-stone-900 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-stone-700 transition-colors flex items-center gap-2"
             >
               <ShoppingBag size={16} />
@@ -131,7 +129,7 @@ const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
       </div>
 
       <div className="pb-20">
-        <Footer onNavigate={onNavigate} />
+        <Footer />
       </div>
     </main>
   );

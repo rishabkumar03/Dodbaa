@@ -2,12 +2,10 @@ import React from 'react';
 import { MapPin, Phone, Plus, RotateCcw } from 'lucide-react';
 import { useAppSelector } from '../hooks/useRedux';
 import Footer from '../components/Footer';
+import { useNavigate } from 'react-router-dom';
 
-interface ProfilePageProps {
-  onNavigate: (page: string, id?: string) => void;
-}
-
-const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
+const ProfilePage: React.FC = () => {
+  const navigate = useNavigate()
   const user = useAppSelector(s => s.auth.user);
 
   if (!user) {
@@ -81,7 +79,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
           </div>
         </div>
       </div>
-      <Footer onNavigate={onNavigate} />
+      <Footer />
     </main>
   );
 };

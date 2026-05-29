@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
 import { useAppSelector } from '../hooks/useRedux';
 import Footer from '../components/Footer';
-
-interface OrderPageProps {
-  onNavigate: (page: string, id?: string) => void;
-}
+import { useNavigate } from 'react-router-dom';
 
 interface CartItem {
   product: {
@@ -20,7 +17,8 @@ interface CartItem {
 
 const STEPS = ['Shipping', 'Billing', 'Order Summary'];
 
-const OrderPage: React.FC<OrderPageProps> = ({ onNavigate }) => {
+const OrderPage: React.FC = () => {
+  const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0);
   const isLoggedIn = useAppSelector(s => s.auth.isLoggedIn);
   const user = useAppSelector(s => s.auth.user);
@@ -164,7 +162,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onNavigate }) => {
                   </div>
                   <h2 className="text-lg font-serif font-bold text-stone-900 mb-1">Order Confirmed!</h2>
                   <p className="text-sm text-stone-500 mb-4">Your order has been placed successfully.</p>
-                  <button onClick={() => onNavigate('home')} className="bg-stone-900 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-stone-700 transition-colors">
+                  <button onClick={() => navigate('/home')} className="bg-stone-900 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-stone-700 transition-colors">
                     Back to Home
                   </button>
                 </div>
@@ -200,7 +198,7 @@ const OrderPage: React.FC<OrderPageProps> = ({ onNavigate }) => {
           )}
         </div>
       </div>
-      <Footer onNavigate={onNavigate} />
+      <Footer />
     </main>
   );
 };

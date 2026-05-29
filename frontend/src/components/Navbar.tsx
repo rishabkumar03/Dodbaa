@@ -4,11 +4,11 @@ import { useAppDispatch, useAppSelector } from '../hooks/useRedux';
 import { toggleMenu, closeMenu } from '../store';
 
 interface NavbarProps {
-  onNavigate: (page: string) => void;
+  useNavigate: (page: string) => void;
   currentPage: string;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
+const Navbar: React.FC<NavbarProps> = ({ useNavigate, currentPage }) => {
   const dispatch = useAppDispatch();
   const menuOpen = useAppSelector(s => s.ui.menuOpen);
   const cartCount = useAppSelector(s => s.cart.items.reduce((acc, i) => acc + i.quantity, 0));
@@ -17,10 +17,10 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-stone-200">
-      <div className="max-w-screen-xl mx-auto px-4 h-14 flex items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
         {/* Logo */}
         <button
-          onClick={() => { onNavigate('home'); dispatch(closeMenu()); }}
+          onClick={() => { useNavigate('home'); dispatch(closeMenu()); }}
           className="text-base font-semibold tracking-tight text-stone-900 shrink-0 font-serif"
         >
           Dodbaa.com
@@ -39,7 +39,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
         {/* Right Icons */}
         <div className="flex items-center gap-3 shrink-0">
           <button
-            onClick={() => onNavigate('cart')}
+            onClick={() => useNavigate('cart')}
             className="relative p-1.5 text-stone-700 hover:text-stone-900 transition-colors"
             aria-label="Cart"
           >
@@ -67,7 +67,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
             <button
               key={item}
               onClick={() => {
-                onNavigate(item.toLowerCase());
+                useNavigate(item.toLowerCase());
                 dispatch(closeMenu());
               }}
               className={`w-full text-left px-5 py-3 text-sm font-medium transition-colors border-b border-stone-100 last:border-0

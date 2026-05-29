@@ -3,12 +3,10 @@ import { Heart } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/useRedux';
 import { addToCart, removeFromWishlist } from '../store';
 import Footer from '../components/Footer';
+import { useNavigate } from 'react-router-dom';
 
-interface WishlistPageProps {
-  onNavigate: (page: string, id?: string) => void;
-}
-
-const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigate }) => {
+const WishlistPage: React.FC = () => {
+  const navigate = useNavigate()
   const dispatch = useAppDispatch();
   const wishlistItems = useAppSelector(s => s.wishlist.items);
 
@@ -25,7 +23,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigate }) => {
             <Heart size={48} className="mx-auto text-stone-200 mb-4" />
             <p className="text-stone-500 mb-4">Your wishlist is empty.</p>
             <button
-              onClick={() => onNavigate('products')}
+              onClick={() => navigate('/products')}
               className="bg-stone-900 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-stone-700 transition-colors"
             >
               Discover Products
@@ -37,7 +35,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigate }) => {
               <div key={product.id} className="flex gap-4 bg-white rounded-2xl border border-stone-100 p-4 shadow-sm">
                 <div
                   className="w-20 h-20 rounded-xl overflow-hidden bg-stone-100 shrink-0 cursor-pointer"
-                  onClick={() => onNavigate('product', product.id)}
+                  onClick={() => navigate('/product', product.id)}
                 >
                   <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                 </div>
@@ -45,7 +43,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigate }) => {
                   <p className="text-xs text-stone-400 mb-0.5">{product.category}</p>
                   <h3
                     className="text-sm font-semibold text-stone-900 mb-1 cursor-pointer hover:underline"
-                    onClick={() => onNavigate('product', product.id)}
+                    onClick={() => navigate('/product', product.id)}
                   >
                     {product.name}
                   </h3>
@@ -70,7 +68,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigate }) => {
           </div>
         )}
       </div>
-      <Footer onNavigate={onNavigate} />
+      <Footer />
     </main>
   );
 };
