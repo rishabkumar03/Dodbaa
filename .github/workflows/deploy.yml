@@ -12,15 +12,9 @@ jobs:
   backend-check:
     name: Backend Build & Type Check
     runs-on: ubuntu-latest
-
-    # Only run if backend files changed
-    # No point running backend CI if you only changed frontend!
     defaults:
       run:
-
-        # All commands run inside backend/
         working-directory: ./backend 
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,8 +24,6 @@ jobs:
         with: 
           node-version: '22'
           cache: 'npm'
-
-          # backend's lockfile
           cache-dependency-path: backend/package-lock.json
       
       - name: Install backend dependencies
@@ -52,15 +44,19 @@ jobs:
         working-directory: ./frontend
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with: 
-          code-version: '22'
+          node-version: '22'          
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
+
       - name: Install dependencies
         run: npm ci
+
       - name: Type check
         run: tsc -b --noEmit
+
       - name: Build
         run: npm run build
         
@@ -68,17 +64,13 @@ jobs:
   deploy-backend: 
     name: Deploy Backend to Render
     runs-on: ubuntu-latest
-
-    # Only runs if backend-check passes
     needs: backend-check
-
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
     steps: 
       - name: Trigger Render Deploy
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
     
-  # ------- FRONTEND CD - VERCEL
+  # ------- FRONTEND CD - Deploy to Vercel -------
   deploy-frontend:
     name: Deploy Frontend to Vercel
     runs-on: ubuntu-latest
@@ -86,11 +78,13 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps: 
       - uses: actions/checkout@v4
+
       - name: Install Vercel CLI
         run: npm install -g vercel
+
       - name: Deploy to Vercel
-        run: |
-          cd frontend
-          vercel --prod --token ${{ secrets.VERCEL_TOKEN }} \ 
-            --yes \
-            --build-env VITE_API_URL=${{ secrets.VITE_API_URL }}
+        working-directory: ./frontend          
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}         
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}  
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --yes --build-env VITE_API_URL=${{ secrets.VITE_API_URL }}
