@@ -21,10 +21,12 @@ app.use(cookieParser())
 // ------- routes import -------
 import userRouter from './routes/user.routes.js'
 import artistRouter from './routes/artistProfile.routes.js'
+import addressRouter from './routes/address.routes.js'
 
 // ------- routes declaration -------
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/artists", artistRouter)
+app.use("/api/v1/address", addressRouter)
 
 // http://localhost:8000/api/v1/users/register
 // http://localhost:8000/api/v1/artists/apply-artist

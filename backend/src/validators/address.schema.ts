@@ -10,17 +10,13 @@ const AddressZodSchema = z.object({
     pinCode: z
         .string()
         .trim(),
-    landMark: z
+    landmark: z
         .string()
         .optional(),
     country: z
         .string(),
     addressType: z
-        .enum(["home", "work", "other"]),
-
-    userAddress: z
-        .string()
-        .regex(/^[0-9a-fA-F]{24}$/, "Invalid User ID")
+        .enum(["home", "work", "other"])
 })
 export const UpdateAddressZodSchema = AddressZodSchema
     .partial()
