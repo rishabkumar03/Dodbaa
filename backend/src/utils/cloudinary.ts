@@ -49,7 +49,7 @@ const deleteFromCloudinary = async (publicId: string) => {
         const client = getCloudinaryClient()
 
         const response = await client.uploader.destroy(publicId, {
-            resource_type: "auto"
+            resource_type: "image"
         })
         console.log("Contents deleted successfully", response);
 

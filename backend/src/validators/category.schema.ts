@@ -1,6 +1,6 @@
 import z from "zod"
 
-const CategoryZodSchema = z.object({
+const CategoryBaseSchema = z.object({
     name: z
         .string()
         .trim()
@@ -26,7 +26,7 @@ const CategoryZodSchema = z.object({
         .trim()
         .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format"),
     level: z
-        .number()
+        .coerce.number()
         .min(1)
         .max(3),
     parent: z
@@ -34,26 +34,31 @@ const CategoryZodSchema = z.object({
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid parent ID")
         .optional()
         .nullable()
-
-}).refine((data) => {
-    if (data.level === 1 && data.parent) return false
-    if (data.level > 1 && !data.parent) return false
-    return true
-}, {
-    message: "Level 1 categories cannot have a parent. Level 2 and 3 must have a parent.",
-    path: ["parent"]
 })
 
-export const UpdateCategoryZodSchema = CategoryZodSchema
-    .partial()
-    .refine((data) => {
-        if (data.level === 1 && data.parent) return false;
-        if (data.level && data.level > 1 && !data.parent) return false;
-        return true;
-    }, {
-        message: "Level 1 categories cannot have a parent. Level 2 and 3 must have a parent.",
-        path: ["parent"]
-    })
+const parentLevelRefine = (data: any) => {
+    if (data.level === 1 && data.parent) {
+        return false;
+    } 
 
-export { CategoryZodSchema }
+    if (data.level && data.level > 1 && !data.parent) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+const parentLevelRefineConfig = {
+    message: "Level 1 categories cannot have a parent. Level 2 and 3 must have a parent",
+    path: ["parent"]
+}
+
+export const CategoryZodSchema = CategoryBaseSchema
+    .refine(parentLevelRefine, parentLevelRefineConfig)
+
+export const UpdateCategoryZodSchema = CategoryBaseSchema
+    .partial()
+    .refine(parentLevelRefine, parentLevelRefineConfig)
+
 export type CategoryInput = z.infer<typeof CategoryZodSchema>
+export type UpdateCategoryInput = z.infer<typeof UpdateCategoryZodSchema>

@@ -14,7 +14,7 @@ Todos:
 - learn about zod in node.js
 - take a look into typescript generics
 
-                paintings 
+PAINTINGS
 1. Indian paintings
  . pattachitra 
  . madhubani 

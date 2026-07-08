@@ -13,8 +13,9 @@ import { verifyAdmin, verifyJWT } from "../middlewares/auth.middleware.js";
 const router = Router()
 
 router
-.route("/add-category")
+.route("/add")
 .post(
+    verifyJWT,
     verifyAdmin,
     upload.fields([
         {
@@ -23,6 +24,43 @@ router
         }
     ]),
     addCategory
+)
+
+router
+.route("/")
+.get(
+    verifyJWT,
+    getAllCategories
+)
+
+router
+.route("/update/:categoryId")
+.patch(
+    verifyJWT,
+    verifyAdmin,
+    updateCategory
+)
+
+router
+.route("/search")
+.get(
+    verifyJWT,
+    searchCategory
+)
+
+router
+.route("/delete/:categoryId")
+.delete(
+    verifyJWT,
+    verifyAdmin,
+    deleteCategory
+)
+
+router
+.route("/getTree")
+.get(
+    verifyJWT,
+    getCategoryTree
 )
 
 export default router

@@ -13,13 +13,16 @@ import {
 
 // Add Category
 const addCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
+    
+    const files = (req.files as { [fieldname: string]: Express.Multer.File[] })?.images
+    
     // Step 1 — check files exist
-    if (!req.files || req.files.length === 0) {
+    if (!files || files.length === 0) {
         throw new ApiError(403, "Image file is Required");
     }
 
     // Step 2 — upload all files to cloudinary in parallel (No await is used to collect all the promises)
-    const uploadPromises = (req.files as Express.Multer.File[]).map(file =>
+    const uploadPromises = files.map(file =>
         uploadOnCloudinary(file.path)
     )
 
@@ -48,6 +51,7 @@ const addCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
 
     // check result.success
     if (!result.success) {
+
         await Promise.all(
             cloudinaryResponse.filter(res => res !== null)
                 .map(res => deleteFromCloudinary(res!.public_id))
@@ -118,7 +122,7 @@ const getAllCategories = asyncHandler(async (req: Request, res: Response) => {
 const updateCategory = asyncHandler(async (req: MulterRequest, res: Response) => {
 
     // Step 1 — validate categoryId
-    const categoryId = req.params?.id
+    const categoryId = req.params?.categoryId
 
     if (!categoryId || typeof categoryId !== "string") {
         throw new ApiError(400, "Category ID is required")
@@ -262,7 +266,7 @@ const searchCategory = asyncHandler(async (req: Request, res: Response) => {
 
 // Delete Category
 const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
-    const categoryId = req.params?.id;
+    const categoryId = req.params?.categoryId;
 
     if (!categoryId || typeof categoryId !== "string") {
         throw new ApiError(400, "Category ID is required");
