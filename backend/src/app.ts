@@ -23,16 +23,19 @@ import userRouter from './routes/user.routes.js'
 import artistRouter from './routes/artistProfile.routes.js'
 import addressRouter from './routes/address.routes.js'
 import categoryRouter from './routes/category.routes.js'
+import couponRouter from './routes/coupon.routes.js'
 
 // ------- routes declaration -------
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/artists", artistRouter)
 app.use("/api/v1/address", addressRouter)
 app.use("/api/v1/category", categoryRouter)
+app.use("/api/v1/coupon", couponRouter)
 
 // http://localhost:8000/api/v1/users/register
 // http://localhost:8000/api/v1/artists/apply-artist
 // http://localhost:8000/api/v1/address/
 // http://localhost:8000/api/v1/category/
+// http://localhost:8000/api/v1/coupon/
 
 export default app;

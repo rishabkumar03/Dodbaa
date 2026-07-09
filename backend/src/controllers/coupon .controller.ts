@@ -55,21 +55,21 @@ const setCoupoun = asyncHandler(async (req, res) => {
 })
 
 const deleteCoupon = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    if (!id || typeof id !== "string") {
+    const { couponId } = req.params;
+    if (!couponId || typeof couponId !== "string") {
         throw new ApiError(400, "Invalid id params")
     }
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(couponId)) {
         throw new ApiError(400, "Invalid Coupon ID")
     }
 
-    const existingCoupon = await CouponModel.findById(id);
+    const existingCoupon = await CouponModel.findById(couponId);
     if (!existingCoupon) {
         throw new ApiError(404, "Coupoun not found")
     }
 
-    const deletedCoupon = await CouponModel.findByIdAndDelete(id);
+    const deletedCoupon = await CouponModel.findByIdAndDelete(couponId);
     if (!deletedCoupon) {
         throw new ApiError(500, "Something went wrong while deleting the coupon")
     }
@@ -85,12 +85,12 @@ const deleteCoupon = asyncHandler(async (req, res) => {
 
 const updateCoupon = asyncHandler(async (req, res) => {
     const { couponName, couponValue, couponExpiry } = req.body;
-    const { id } = req.params;
+    const { couponId } = req.params;
 
-    if (!id || typeof id !== "string") {
+    if (!couponId || typeof couponId !== "string") {
         throw new ApiError(400, "Coupon ID is required")
     }
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(couponId)) {
         throw new ApiError(400, "Invalid Coupon ID")
     }
 
@@ -98,9 +98,9 @@ const updateCoupon = asyncHandler(async (req, res) => {
         throw new ApiError(400, "At least one field is required to update")
     }
 
-    const existingCoupon = await CouponModel.findById(id);
+    const existingCoupon = await CouponModel.findById(couponId);
     if (!existingCoupon) {
-        throw new ApiError(404, `Coupon not found with id:${id} and name:${couponName}`)
+        throw new ApiError(404, `Coupon not found with id:${couponId} and name:${couponName}`)
     }
 
     // build update object with only provided fields
@@ -131,7 +131,7 @@ const updateCoupon = asyncHandler(async (req, res) => {
     }
 
     const updatedCoupon = await CouponModel.findByIdAndUpdate(
-        id,
+        couponId,
         { $set: result.data },
         { new: true }
     )
@@ -169,22 +169,22 @@ const getAllCoupons = asyncHandler(async (req, res) => {
 })
 
 const toggleCouponState = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    if (!id || typeof id !== "string") {
+    const { couponId } = req.params;
+    if (!couponId || typeof couponId !== "string") {
         throw new ApiError(400, "Invalid Id parameter")
     }
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(couponId)) {
         throw new ApiError(400, "Invalid Id")
     }
 
-    const existingCoupon = await CouponModel.findById(id)
+    const existingCoupon = await CouponModel.findById(couponId)
     if (!existingCoupon) {
         throw new ApiError(404, "Coupon not found")
     }
 
-    const updatedCoupon = await CouponModel.findByIdAndUpdate(id,
-        { $set: { isActive: { $not: "$isActive" } } },
+    const updatedCoupon = await CouponModel.findByIdAndUpdate(couponId,
+        { $set: { isActive: !existingCoupon.isActive } },
         { new: true }
     )
     if (!updatedCoupon) {
@@ -209,7 +209,7 @@ const searchCoupon = asyncHandler(async (req, res) => {
     const existingCoupon = await CouponModel.findOne({ couponName })
 
     // check coupon expiry
-    if (existingCoupon && existingCoupon?.couponExpiry > new Date()) {
+    if (existingCoupon && existingCoupon.couponExpiry < new Date()) {
         throw new ApiError(400, "Coupon Expired")
     }
     if (!existingCoupon) {
