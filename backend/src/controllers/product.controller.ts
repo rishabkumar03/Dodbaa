@@ -13,9 +13,11 @@ import { SORT_TYPE } from "../utils/constants.js";
 
 // Add Product
 const addProduct = asyncHandler(async (req: MulterRequest, res) => {
+    
     // Step 1 — check files
-    const files = req.files as Express.Multer.File[];
-    if (!files || files.length === 0) {
+    const files = (req.files as { [filename: string]: Express.Multer.File[] })?.images ?? []
+
+    if (!files || files.length == 0) {
         throw new ApiError(400, "Product images are required")
     }
 
@@ -39,11 +41,20 @@ const addProduct = asyncHandler(async (req: MulterRequest, res) => {
         publicId: img!.public_id
     }))
 
+    if (req.body.price) {
+        req.body.price = Number(req.body.price)
+    }
+
+    if (req.body.isAvailable) {
+        req.body.isAvailable = req.body.isAvailable === "true"
+    }
+
     // Step 5 — validate
     // front-end data => category = "14b34as45" same for subCategory & subSubCategory
-
     const result = ProductZodSchema.safeParse(req.body);
     if (!result.success) {
+        console.log("ZOD ERRORS: ", JSON.stringify(result.error.flatten().fieldErrors, null, 2));
+        
         await Promise.all(
             cloudinaryResponse.filter(res => res !== null)
                 .map(res => deleteFromCloudinary(res!.public_id))
@@ -90,7 +101,7 @@ const updateProduct = asyncHandler(async (req: MulterRequest, res) => {
     }
 
     let cloudinaryResponse: Awaited<ReturnType<typeof uploadOnCloudinary>>[] = []
-    const files = req.files as Express.Multer.File[];
+    const files = (req.files as { [fieldname: string]: Express.Multer.File[] })?.images ?? []
 
     if (files && files.length > 0) {
         // Step 1 — upload new images
@@ -172,7 +183,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
 
 // Delete Products
 const deleteProduct = asyncHandler(async (req, res) => {
-    const { productId } = req.query;
+    const { productId } = req.params;
     if (!productId || typeof productId !== "string") {
         throw new ApiError(400, "Product Id is required")
     }

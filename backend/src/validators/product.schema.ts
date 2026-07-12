@@ -13,11 +13,15 @@ const ProductZodSchema = z.object({
         .trim()
         .min(10, { message: "Product description should have atleast 10 characters" }),
 
-    images: z
-        .array(z.string().url({ message: "Image must be a valid url" }))
-        .min(2, { message: "Product images shold contains atleast 2 content." }),
+    images: z.array(
+        z.object({
+            imageUrl: z.string().url({ message: "Image must be a valid URL" }),
+            publicId: z.string()
+        })
+    ).min(2, { message: "Product images should contains atleast 2 content." }),
 
     price: z
+        .coerce
         .number()
         .positive({ message: "Price must be greater than 99" })
         .gt(99) // minimum ₹99
@@ -30,6 +34,7 @@ const ProductZodSchema = z.object({
         .optional(),
 
     isAvailable: z
+        .coerce
         .boolean()
         .default(true),
 
@@ -37,6 +42,10 @@ const ProductZodSchema = z.object({
         .string()
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid Category ID")
         .optional(),
+
+    subCategory: z
+        .string()
+        .regex(/^[0-9a-fA-F]{24}$/, "Invalid SubCategory ID"),
 
     subSubCategory: z
         .string()
