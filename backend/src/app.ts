@@ -33,7 +33,7 @@ app.use("/api/v1/artists", artistRouter)
 app.use("/api/v1/address", addressRouter)
 app.use("/api/v1/category", categoryRouter)
 app.use("/api/v1/coupon", couponRouter)
-app.use("/api/v1/cart", cartRouter)
+app.use("/api/v1/carts", cartRouter)
 app.use("/api/v1/products", productRouter)
 
 // http://localhost:8000/api/v1/users/register
@@ -41,7 +41,7 @@ app.use("/api/v1/products", productRouter)
 // http://localhost:8000/api/v1/address/
 // http://localhost:8000/api/v1/category/
 // http://localhost:8000/api/v1/coupon/
-// http://localhost:8000/api/v1/cart/
+// http://localhost:8000/api/v1/carts/
 // http://localhost:8000/api/v1/products/
 
 export default app;

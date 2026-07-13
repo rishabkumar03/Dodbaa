@@ -21,9 +21,9 @@ const cartZodSchema = z.object({
             }
         )
     ).min(1, "Cart must have at least one product"),
-    couponValue: z.number().min(0).max(100).optional(),
-    totalPrice: z.number().min(1),
-    discountedPrice: z.number().min(0).default(0)
+    couponValue: z.coerce.number().min(0).max(100).optional(),
+    totalPrice: z.coerce.number().min(1),
+    discountedPrice: z.coerce.number().min(0).default(0)
 })
 
 export const UpdateCartZodSchema = cartZodSchema.partial()

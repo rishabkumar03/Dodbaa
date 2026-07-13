@@ -80,7 +80,7 @@ const createCart = asyncHandler(async (req, res) => {
 
 const updateCart = asyncHandler(async (req, res) => {
     const { cartId } = req.params
-    const { productDetails, quantity, couponCode } = req.body
+    const { productDetails, couponCode } = req.body
 
     if (!cartId || typeof cartId !== "string") {
         throw new ApiError(400, "Invalid Id format")
@@ -89,7 +89,7 @@ const updateCart = asyncHandler(async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(cartId)) {
         throw new ApiError(400, "Invalid cartId Id")
     }
-
+ 
     if (!productDetails || !Array.isArray(productDetails)) {
         throw new ApiError(400, "Product details is required and must be an array")
     }
