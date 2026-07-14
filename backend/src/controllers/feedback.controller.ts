@@ -25,11 +25,11 @@ const createFeedback = asyncHandler(async (req: MulterRequest, res: Response) =>
     }
 
     // attach the userId and productId to req.body
-    req.body.feedbackUserId = new mongoose.Types.ObjectId(userId);
-    req.body.feedbackProductId = new mongoose.Types.ObjectId(productId);
+    req.body.feedbackUserId = userId;
+    req.body.feedbackProductId = productId;
 
     // image handling
-    const files = req.files as Express.Multer.File[]
+    const files = (req.files as { [fieldname: string]: Express.Multer.File[] })?.images ?? []
     let cloudinaryResponse: Awaited<ReturnType<typeof uploadOnCloudinary>>[] = []
     if (files && files.length > 0) {
         const uploadPromises = files.map(file => uploadOnCloudinary(file!.path));
@@ -71,7 +71,10 @@ const createFeedback = asyncHandler(async (req: MulterRequest, res: Response) =>
     const feedbackData = Object.fromEntries(
         Object.entries({ rating, comment, images, isPurchaseVerified, feedbackUserId, feedbackProductId })
             .filter(([_, value]) => value !== undefined)
-    )
+    ) as Record<string, unknown>
+
+    feedbackData.feedbackUserId = new mongoose.Types.ObjectId(feedbackData.feedbackUserId as string)
+    feedbackData.feedbackProductId = new mongoose.Types.ObjectId(feedbackData.feedbackProductId as string)
 
     const newFeedback = await (await FeedbackModel.create(feedbackData))
         .populate("feedbackUserId", "fullname")
@@ -147,7 +150,7 @@ const updateFeedback = asyncHandler(async (req: MulterRequest, res: Response) =>
 
     // Step 3 — handle image uploads if files provided
     let cloudinaryResponse: Awaited<ReturnType<typeof uploadOnCloudinary>>[] = []
-    const files = req.files as Express.Multer.File[]
+    const files = (req.files as { [fieldname: string]: Express.Multer.File[] })?.images ?? []
 
     if (files && files.length > 0) {
 
@@ -220,7 +223,7 @@ const updateFeedback = asyncHandler(async (req: MulterRequest, res: Response) =>
 
 // Delete Feedback
 const deleteFeedback = asyncHandler(async (req: Request, res: Response) => {
-    const feedbackId = req.params?.id;
+    const feedbackId = req.params?.feedbackId;
     if (!feedbackId || typeof (feedbackId) !== "string") {
         throw new ApiError(403, " Feedback Id is required")
     }

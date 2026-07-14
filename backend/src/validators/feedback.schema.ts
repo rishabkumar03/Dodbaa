@@ -4,6 +4,7 @@ import z from "zod"
 
 const FeedbackZodSchema = z.object({
     rating: z
+        .coerce
         .number()
         .min(1)
         .max(5),
@@ -21,12 +22,12 @@ const FeedbackZodSchema = z.object({
                     publicId: z.string()
                 }
             )
-
         )
         .max(5, { message: "Feedback should contain at max 5 images" })
         .optional(),
 
     isPurchaseVerified: z
+        .coerce
         .boolean(),
 
     feedbackUserId: z
@@ -38,12 +39,7 @@ const FeedbackZodSchema = z.object({
         .regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID")
 })
 
-export const UpdatefeedbackZodSchema = FeedbackZodSchema
-  .partial()
-  .refine(d => d.rating !== undefined && d.comment !== undefined, {
-    message: "Both rating and comment are required",
-    path: ["rating", "comment"]
-  });
+export const UpdatefeedbackZodSchema = FeedbackZodSchema.partial();
 
 export { FeedbackZodSchema }
 

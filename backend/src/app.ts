@@ -26,6 +26,7 @@ import categoryRouter from './routes/category.routes.js'
 import couponRouter from './routes/coupon.routes.js'
 import cartRouter from './routes/cart.routes.js'
 import productRouter from './routes/product.routes.js'
+import feedbackRouter from './routes/feedback.routes.js'
 
 // ------- routes declaration -------
 app.use("/api/v1/users", userRouter)
@@ -35,6 +36,7 @@ app.use("/api/v1/category", categoryRouter)
 app.use("/api/v1/coupon", couponRouter)
 app.use("/api/v1/carts", cartRouter)
 app.use("/api/v1/products", productRouter)
+app.use("/api/v1/feedbacks", feedbackRouter)
 
 // http://localhost:8000/api/v1/users/register
 // http://localhost:8000/api/v1/artists/apply-artist
@@ -43,5 +45,6 @@ app.use("/api/v1/products", productRouter)
 // http://localhost:8000/api/v1/coupon/
 // http://localhost:8000/api/v1/carts/
 // http://localhost:8000/api/v1/products/
+// http://localhost:8000/api/v1/feedbacks/
 
 export default app;
